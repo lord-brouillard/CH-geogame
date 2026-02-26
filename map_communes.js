@@ -1,9 +1,11 @@
 let allFeatures = []; // stockage des features
 const map = L.map('map', {
-    zoomControl: true,
+    zoomControl: false,
     attributionControl: false
 });
-
+L.control.zoom({
+    position: 'topright'
+}).addTo(map);
 fetch('./data/GeoJSON_communes.geojson')
     .then(response => response.json())
     .then(geojson => {
