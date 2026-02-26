@@ -23,34 +23,39 @@ fetch('./data/GeoJSON_communes.geojson')
             },
 
             onEachFeature: (feature, lyr) => {
+    allFeatures.push(lyr);
 
-                allFeatures.push(lyr);
+    const p = feature.properties;
 
-                const p = feature.properties;
+    // Test console
+    console.log("Clique sur :", p.NAME, p.EINWOHNERZ, p.GEM_FLAECH);
 
-                // Contenu affiché dans popup + panneau du bas
-                const html = `
-                    <b>${p.NAME}</b><br>
-                    Population : ${p.EINWOHNERZ.toLocaleString('fr-CH')} habitants<br>
-                    Surface : ${p.GEM_FLAECH} ha
-                `;
+    const html = `
+        <b>${p.NAME}</b><br>
+        Population : ${p.EINWOHNERZ} habitants<br>
+        Surface : ${p.GEM_FLAECH} ha
+    `;
 
-                // Popup
-                lyr.bindPopup(html);
+    lyr.bindPopup(html);
 
-                // Affichage dans le panneau du bas
-                lyr.on('click', () => {
-                    document.getElementById('info').innerHTML = html;
-                });
+    lyr.on('click', () => {
+        const info = document.getElementById('info');
+        if (!info) {
+            console.error("⚠️ Aucun élément #info trouvé dans le HTML");
+            return;
+        }
+        info.innerHTML = html;
+    });
 
-                // Effet hover
-                lyr.on('mouseover', () => {
-                    lyr.setStyle({ weight: 3, color: 'blue' });
-                });
+    lyr.on('mouseover', () => {
+        lyr.setStyle({ weight: 3, color: 'blue' });
+    });
 
-                lyr.on('mouseout', () => {
-                    lyr.setStyle({ weight: 1, color: '#000' });
-                });
+    lyr.on('mouseout', () => {
+        lyr.setStyle({ weight: 1, color: '#000' });
+    });
+}
+
             }
         });
 
