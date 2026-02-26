@@ -5,7 +5,7 @@ const map = L.map('map', {
 });
 
 // Chargement du GeoJSON
-fetch('GeoJSON_cantons.geojson')
+fetch('./data/GeoJSON_cantons.geojson')
     .then(response => response.json())
     .then(geojson => {
 

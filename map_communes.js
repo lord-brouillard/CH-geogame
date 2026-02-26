@@ -4,7 +4,7 @@ const map = L.map('map', {
     attributionControl: false
 });
 
-fetch('GeoJSON_communes.geojson')
+fetch('./data/GeoJSON_communes.geojson')
     .then(response => response.json())
     .then(geojson => {
 
