@@ -1,0 +1,50 @@
+h1 {
+    text-align: center;
+    font-family: helvetica;
+    color:black;
+}
+body {
+    font-family: helvetica;
+    background-color:white;
+}
+ul.topnav {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #333333;
+    justify-content: space-evenly;
+    align-items: center;
+}
+ul.topnav li {
+    flex: 1;
+}
+ul.topnav li a {
+    text-align: center;
+    display: block;
+    color: #f1f1f1;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+footer {
+    text-align: center;
+}
+.suggestions {
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 1000;
+    width: 200px;
+}
+
+.suggestions div {
+    padding: 5px;
+    cursor: pointer;
+}
+
+.suggestions div:hover {
+    background: #eee;
+}
+

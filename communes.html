@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    #map {
+      height: 450px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>CH-Geogame - Communes</h1>
+</header>
+<ul class="topnav">
+  <li><a href="index.html">Home</a></li>
+  <li><a href="classement.html">Classement</a></li>
+  <li><a href="cantons.html">Cantons</a></li>
+  <li><a href="communes.html">Communes</a></li>
+</ul>
+<input type="text" id="search" placeholder="Rechercher une commune">
+<div id="suggestions" class="suggestions"></div>
+<button id="btnSearch">OK</button>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="map_communes.js"></script>
+<div id="info" class="info"></div>
+<footer>matthias.renaud@heig-vd.ch</footer>
+</body>
+</html>
