@@ -20,7 +20,7 @@ fetch('./data/GeoJSON_communes.geojson')
 
                 allFeatures.push(lyr);
 
-                const html = ` <strong>${props.NAME}</strong>`;
+                const html = `${feature.properties.NAME}`;
 
                 lyr.bindPopup(html);
 
