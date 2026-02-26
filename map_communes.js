@@ -20,7 +20,7 @@ fetch('./data/GeoJSON_communes.geojson')
 
                 allFeatures.push(lyr);
 
-                const html = ` <strong>${props.NAME}</strong><br> Surface : ${props.AREA ?? "?"} km²<br>`;
+                const html = ` <strong>${props.NAME}</strong>`;
 
                 lyr.bindPopup(html);
 
