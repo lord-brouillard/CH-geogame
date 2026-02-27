@@ -33,7 +33,7 @@ const map = L.map('map', {
 L.control.zoom({ position: 'topright' }).addTo(map);
 
 // 🟦 1) Charger le territoire suisse (fond non interactif)
-fetch('./data/GeoJSON_CH.geojson')
+fetch('./data/Shapefile_CH.geojson')
     .then(r => r.json())
     .then(territoire => {
 
