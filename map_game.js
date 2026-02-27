@@ -8,7 +8,7 @@ const maxAttempts = 5;
 let gameActive = true;
 let hasClicked = false;
 
-let currentAttemptsLog = []; // Log interne des essais
+let currentAttemptsLog = [];
 
 let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
@@ -63,7 +63,7 @@ fetch('./data/GeoJSON_communes.geojson')
                     if (hasClicked) return;
                     hasClicked = true;
 
-                    // 🔓 Le joueur a cliqué → bouton réactivé pour permettre un changement
+                    // 🔓 Le joueur a cliqué → bouton réactivé
                     document.getElementById('new').disabled = false;
 
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
@@ -86,7 +86,6 @@ fetch('./data/GeoJSON_communes.geojson')
                     score += pts;
                     attempts++;
 
-                    // Log interne
                     currentAttemptsLog.push({
                         attempt: attempts,
                         distance: d.toFixed(2),
@@ -115,6 +114,9 @@ fetch('./data/GeoJSON_communes.geojson')
                         endGame();
                         return;
                     }
+
+                    // 🆕 Permettre un nouveau clic au prochain essai
+                    hasClicked = false;
                 });
             }
         });
@@ -139,7 +141,7 @@ fetch('./data/GeoJSON_communes.geojson')
 
             hasClicked = false;
 
-            // 🔒 Anti‑triche : tant qu’on n’a pas cliqué, on ne peut PAS changer
+            // 🔒 Anti‑triche : bouton désactivé tant qu’on n’a pas cliqué
             document.getElementById('new').disabled = true;
         }
 
@@ -157,14 +159,11 @@ fetch('./data/GeoJSON_communes.geojson')
                 `🎉 Partie terminée ! Score final : <b>${score}</b>`;
 
             document.getElementById('new').innerHTML = "Nouvelle partie";
+            document.getElementById('new').disabled = false;
 
             document.getElementById('best').innerHTML =
                 `Meilleur score : <b>${bestScore}</b>`;
 
-            // 🔓 Fin de partie → bouton réactivé
-            document.getElementById('new').disabled = false;
-
-            // ARCHIVAGE COMPLET
             const p = correctFeature.feature.properties;
             let html = `<div style="padding:10px; border:1px solid #ccc; margin-bottom:10px;">
                             <b>Partie terminée</b> — ${new Date().toLocaleString()}<br>
@@ -191,8 +190,6 @@ fetch('./data/GeoJSON_communes.geojson')
             currentAttemptsLog = [];
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
-
-            // 🔒 Nouvelle partie → bouton désactivé
             document.getElementById('new').disabled = true;
 
             pickNewCommune();
@@ -206,10 +203,7 @@ fetch('./data/GeoJSON_communes.geojson')
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
 
-        // Le bouton ne sert qu’à recommencer une partie
         document.getElementById('new').addEventListener('click', () => {
-            if (!gameActive) {
-                resetGame();
-            }
+            if (!gameActive) resetGame();
         });
     });
