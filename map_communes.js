@@ -10,6 +10,8 @@ L.control.zoom({
     position: 'topright'
 }).addTo(map);
 
+// ⚠️ AUCUNE couche de tuiles ici → pas d’OpenStreetMap
+
 // Chargement du GeoJSON
 fetch('./data/GeoJSON_communes.geojson')
     .then(response => response.json())
