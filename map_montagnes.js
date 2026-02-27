@@ -145,9 +145,19 @@ fetch('./data/GeoJSON_CH_v2.geojson')
         layer.addTo(map);
         map.fitBounds(layer.getBounds());
 
+        // 🟢 Correction : attendre que toutes les features soient chargées
+        let featuresLoaded = 0;
+        const totalFeatures = geojson.features.length;
+
+        layer.on('layeradd', () => {
+            featuresLoaded++;
+            if (featuresLoaded === totalFeatures) {
+                pickNewMontagne();
+            }
+        });
+
         function pickNewMontagne() {
 
-            // arrêter un éventuel clignotement précédent
             if (blinkInterval) {
                 clearInterval(blinkInterval);
                 blinkInterval = null;
@@ -168,8 +178,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
         function endGame() {
             gameActive = false;
-
-            // on laisse le clignotement du dernier essai actif
 
             if (score > bestScore) {
                 bestScore = score;
@@ -225,9 +233,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             document.getElementById('best').innerHTML =
                 `Meilleur score : <b>${bestScore}</b>`;
         }
-
-        // init
-        pickNewMontagne();
 
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
