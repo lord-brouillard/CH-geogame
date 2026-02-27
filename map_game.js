@@ -1,5 +1,5 @@
 let allFeatures = [];
-let correctFeature = null; // la commune juste
+let correctFeature = null;
 let blinkInterval = null;
 
 // Fonction distance (Haversine)
@@ -35,7 +35,7 @@ fetch('./data/GeoJSON_communes.geojson')
             onEachFeature: (feature, lyr) => {
                 allFeatures.push(lyr);
 
-                // Effet hover
+                // Hover
                 lyr.on('mouseover', () => {
                     lyr.setStyle({ weight: 3, color: 'blue' });
                 });
