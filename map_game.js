@@ -112,5 +112,8 @@ fetch('./data/GeoJSON_communes.geojson')
         pickNewCommune();
 
         // Bouton nouvelle commune
-        document.getElementById('new').addEventListener('click', pickNewCommune);
+        const newBtn = document.getElementById('new');
+        if (newBtn) {
+            newBtn.addEventListener('click', pickNewCommune);
+        }
     });
