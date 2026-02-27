@@ -158,23 +158,28 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
         function pickNewMontagne() {
 
-            if (blinkInterval) {
-                clearInterval(blinkInterval);
-                blinkInterval = null;
-            }
+    if (blinkInterval) {
+        clearInterval(blinkInterval);
+        blinkInterval = null;
+    }
 
-            allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+    allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
-            // montagne cible aléatoire
-            correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
+    // montagne cible aléatoire
+    correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
 
-            const p = correctFeature.feature.properties;
-            document.getElementById('target').innerHTML =
-                `Montagne à trouver : <b>${p.NAME}</b>`;
+    const p = correctFeature.feature.properties;
 
-            hasClicked = false;
-            document.getElementById('new').disabled = true;
-        }
+    document.getElementById('target').innerHTML =
+        `Montagne à trouver : <b>${p.NAME}</b>`;
+
+    // 🔥 AJOUT : affichage en bas à droite
+    document.querySelector('#randomNameBox b').textContent = p.NAME;
+
+    hasClicked = false;
+    document.getElementById('new').disabled = true;
+}
+
 
         function endGame() {
             gameActive = false;
