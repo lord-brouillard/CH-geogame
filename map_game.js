@@ -63,6 +63,9 @@ fetch('./data/GeoJSON_communes.geojson')
                     if (hasClicked) return;
                     hasClicked = true;
 
+                    // 🔓 Le joueur a cliqué → bouton réactivé
+                    document.getElementById('new').disabled = false;
+
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
                     if (blinkInterval) {
@@ -135,6 +138,9 @@ fetch('./data/GeoJSON_communes.geojson')
                 `Commune à trouver : <b>${p.NAME}</b>`;
 
             hasClicked = false;
+
+            // 🔒 Anti‑triche : tant qu’on n’a pas cliqué, on ne peut PAS changer
+            document.getElementById('new').disabled = true;
         }
 
         function endGame() {
@@ -154,6 +160,9 @@ fetch('./data/GeoJSON_communes.geojson')
 
             document.getElementById('best').innerHTML =
                 `Meilleur score : <b>${bestScore}</b>`;
+
+            // 🔓 Fin de partie → bouton réactivé
+            document.getElementById('new').disabled = false;
 
             // ARCHIVAGE COMPLET
             const p = correctFeature.feature.properties;
@@ -183,6 +192,9 @@ fetch('./data/GeoJSON_communes.geojson')
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
 
+            // 🔒 Nouvelle partie → bouton désactivé
+            document.getElementById('new').disabled = true;
+
             pickNewCommune();
 
             document.getElementById('best').innerHTML =
@@ -194,29 +206,10 @@ fetch('./data/GeoJSON_communes.geojson')
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
 
-        // 🔥 ANTI‑TRICHE : changer de commune consomme un essai
+        // Le bouton ne sert qu’à recommencer une partie
         document.getElementById('new').addEventListener('click', () => {
-
             if (!gameActive) {
                 resetGame();
-                return;
             }
-
-            attempts++;
-
-            document.getElementById('info').innerHTML +=
-                `<div style="margin-bottom:10px;">
-                    <b>Changement de commune</b><br>
-                    Essai utilisé : <b>${attempts}/${maxAttempts}</b><br>
-                    Aucun point gagné.
-                 </div><hr>`;
-
-            if (attempts >= maxAttempts) {
-                endGame();
-                return;
-            }
-
-            hasClicked = false;
-            pickNewCommune();
         });
     });
