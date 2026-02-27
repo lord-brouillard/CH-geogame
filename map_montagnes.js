@@ -39,7 +39,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
         L.geoJSON(territoire, {
             coordsToLatLng: function (coords) {
-                // ignore la 3e coordonnée (altitude)
                 return L.latLng(coords[1], coords[0]);
             },
             style: {
@@ -205,7 +204,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
         function resetGame() {
 
-            // stopper le clignotement quand on lance une nouvelle partie
             if (blinkInterval) {
                 clearInterval(blinkInterval);
                 blinkInterval = null;
