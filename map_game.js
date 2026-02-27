@@ -87,11 +87,15 @@ fetch('./data/GeoJSON_communes.geojson')
                     score += pts;
                     attempts++;
 
-                    document.getElementById('info').innerHTML =
-                        `Distance : <b>${d.toFixed(2)} km</b><br>
-                         Points gagnés : <b>${pts}</b><br>
-                         Score total : <b>${score}</b><br>
-                         Essai ${attempts}/${maxAttempts}`;
+                   document.getElementById('info').innerHTML +=
+    `				<div class="result" style="margin-bottom:10px;">
+					<b>Essai ${attempts}/${maxAttempts}</b><br>
+					Distance : <b>${d.toFixed(2)} km</b><br>
+					Points gagnés : <b>${pts}</b><br>
+					Score total : <b>${score}</b>
+					</div>
+					<hr>`;
+
 
                     // Clignotement de la bonne commune
                     let visible = true;
