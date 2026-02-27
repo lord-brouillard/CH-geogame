@@ -1,18 +1,20 @@
-let allFeatures = []; // stockage des features
+let allFeatures = [];
 
 const map = L.map('map', {
     zoomControl: false,
     attributionControl: false
 });
 
-// Contrôle zoom
-L.control.zoom({
-    position: 'topright'
+// Fond de carte obligatoire
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
 }).addTo(map);
 
-// Chargement du GeoJSON
+// Contrôle zoom
+L.control.zoom({ position: 'topright' }).addTo(map);
+
 fetch('./data/GeoJSON_communes.geojson')
-    .then(response => response.json())
+    .then(r => r.json())
     .then(geojson => {
 
         const layer = L.geoJSON(geojson, {
@@ -23,92 +25,28 @@ fetch('./data/GeoJSON_communes.geojson')
             },
 
             onEachFeature: (feature, lyr) => {
-    allFeatures.push(lyr);
+                allFeatures.push(lyr);
 
-    const p = feature.properties;
+                const p = feature.properties;
 
-    // Test console
-    console.log("Clique sur :", p.NAME, p.EINWOHNERZ, p.GEM_FLAECH);
+                const html = `
+                    <b>${p.NAME}</b><br>
+                    Population : ${p.EINWOHNERZ}<br>
+                    Surface : ${p.GEM_FLAECH} ha
+                `;
 
-    const html = `
-        <b>${p.NAME}</b><br>
-        Population : ${p.EINWOHNERZ} habitants<br>
-        Surface : ${p.GEM_FLAECH} ha
-    `;
+                lyr.bindPopup(html);
 
-    lyr.bindPopup(html);
-
-    lyr.on('click', () => {
-        const info = document.getElementById('info');
-        if (!info) {
-            console.error("⚠️ Aucun élément #info trouvé dans le HTML");
-            return;
-        }
-        info.innerHTML = html;
-    });
-
-    lyr.on('mouseover', () => {
-        lyr.setStyle({ weight: 3, color: 'blue' });
-    });
-
-    lyr.on('mouseout', () => {
-        lyr.setStyle({ weight: 1, color: '#000' });
-    });
-}
-
-            }
-        });
-
-        // Ajout à la carte
-        layer.addTo(map);
-
-        // Zoom automatique
-        map.fitBounds(layer.getBounds());
-
-        // --- Recherche ---
-        document.getElementById('btnSearch').addEventListener('click', () => {
-            const q = document.getElementById('search').value.toLowerCase();
-
-            const found = allFeatures.filter(f =>
-                f.feature.properties.NAME.toLowerCase().includes(q)
-            );
-
-            if (found.length > 0) {
-                map.fitBounds(found[0].getBounds());
-                found[0].openPopup();
-            } else {
-                alert("Commune non trouvée");
-            }
-        });
-
-        // --- Autocomplétion ---
-        const input = document.getElementById('search');
-        const suggestions = document.getElementById('suggestions');
-
-        input.addEventListener('input', () => {
-            const q = input.value.toLowerCase();
-            suggestions.innerHTML = '';
-
-            if (q.length < 2) return;
-
-            const matches = allFeatures.filter(f =>
-                f.feature.properties.NAME.toLowerCase().includes(q)
-            );
-
-            matches.slice(0, 10).forEach(f => {
-                const div = document.createElement('div');
-                div.textContent = f.feature.properties.NAME;
-
-                div.addEventListener('click', () => {
-                    input.value = f.feature.properties.NAME;
-                    suggestions.innerHTML = '';
-
-                    map.fitBounds(f.getBounds());
-                    f.openPopup();
+                lyr.on('click', () => {
+                    const info = document.getElementById('info');
+                    if (info) info.innerHTML = html;
                 });
 
-                suggestions.appendChild(div);
-            });
+                lyr.on('mouseover', () => lyr.setStyle({ weight: 3, color: 'blue' }));
+                lyr.on('mouseout', () => lyr.setStyle({ weight: 1, color: '#000' }));
+            }
         });
 
+        layer.addTo(map);
+        map.fitBounds(layer.getBounds());
     });
