@@ -44,7 +44,7 @@ fetch('./data/GeoJSON_communes.geojson')
                     lyr.setStyle({ weight: 1, color: '#000' });
                 });
 
-                // Clic → coloration + distance
+                // Clic → coloration + distance + clignotement
                 lyr.on('click', () => {
                     // Reset styles
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
@@ -62,6 +62,18 @@ fetch('./data/GeoJSON_communes.geojson')
                         document.getElementById('info').innerHTML =
                             `Distance avec la commune juste : <b>${d} km</b>`;
                     }
+
+                    // Lancer le clignotement après clic
+                    if (blinkInterval) clearInterval(blinkInterval);
+
+                    let visible = true;
+                    blinkInterval = setInterval(() => {
+                        correctFeature.setStyle({
+                            fillColor: visible ? 'red' : '',
+                            fillOpacity: visible ? 0.7 : 0.2
+                        });
+                        visible = !visible;
+                    }, 500);
                 });
             }
         });
@@ -76,14 +88,4 @@ fetch('./data/GeoJSON_communes.geojson')
         const p = correctFeature.feature.properties;
         const box = document.getElementById('target');
         box.innerHTML = `Commune à trouver : <b>${p.NAME}</b>`;
-
-        // Clignotement
-        let visible = true;
-        blinkInterval = setInterval(() => {
-            correctFeature.setStyle({
-                fillColor: visible ? 'red' : '',
-                fillOpacity: visible ? 0.7 : 0.2
-            });
-            visible = !visible;
-        }, 500);
     });
