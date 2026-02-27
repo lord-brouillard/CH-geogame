@@ -251,3 +251,4 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             }
         });
     });
+document.getElementById('randomNameText').textContent = "TEST OK";
