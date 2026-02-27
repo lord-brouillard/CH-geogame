@@ -9,7 +9,7 @@ const maxAttempts = 5;
 let gameActive = true;
 let hasClicked = false;
 
-// Record
+// Record (meilleur score de partie)
 let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
     : 0;
@@ -90,7 +90,7 @@ fetch('./data/GeoJSON_communes.geojson')
                     score += pts;
                     attempts++;
 
-                    // Ajout à l'historique
+                    // Ajout à l'historique (NE DISPARAÎT PAS)
                     document.getElementById('info').innerHTML +=
                         `<div style="margin-bottom:10px;">
                             <b>Essai ${attempts}/${maxAttempts}</b><br>
@@ -143,7 +143,7 @@ fetch('./data/GeoJSON_communes.geojson')
             document.getElementById('target').innerHTML =
                 `Commune à trouver : <b>${p.NAME}</b>`;
 
-            hasClicked = false;
+            hasClicked = false; // IMPORTANT
         }
 
         // Fin de partie
@@ -152,7 +152,7 @@ fetch('./data/GeoJSON_communes.geojson')
 
             if (blinkInterval) clearInterval(blinkInterval);
 
-            // Mise à jour du record
+            // Mise à jour du record (par partie)
             if (score > bestScore) {
                 bestScore = score;
                 localStorage.setItem("bestScore", bestScore);
@@ -163,7 +163,6 @@ fetch('./data/GeoJSON_communes.geojson')
 
             document.getElementById('new').innerHTML = "Nouvelle partie";
 
-            // Affichage du record
             document.getElementById('best').innerHTML =
                 `Meilleur score : <b>${bestScore}</b>`;
         }
@@ -173,12 +172,15 @@ fetch('./data/GeoJSON_communes.geojson')
             score = 0;
             attempts = 0;
             gameActive = true;
+            hasClicked = false;
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
-            document.getElementById('info').innerHTML = "";
+
+            // ❗ Tu veux garder l’historique → on NE vide PAS info
+            // document.getElementById('info').innerHTML = "";
+
             pickNewCommune();
 
-            // Afficher le record
             document.getElementById('best').innerHTML =
                 `Meilleur score : <b>${bestScore}</b>`;
         }
