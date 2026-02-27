@@ -5,9 +5,23 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
     <style>
+        #container {
+            display: flex;
+            height: 80vh;
+            margin-top: 20px;
+        }
+
         #map {
-            height: 450px;
+            flex: 1;
             background: white;
+        }
+
+        #sidebar {
+            width: 300px;
+            background: #f7f7f7;
+            border-left: 1px solid #ccc;
+            padding: 15px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -24,34 +38,26 @@
     <li><a href="communes.html">Communes</a></li>
 </ul>
 
-<div id="map"></div>
-
-<div id="ui-container" style="display:flex; align-items:flex-start; gap:20px; margin-top:15px;">
-
-    <div>
-        <button id="new">Nouvelle commune</button>
-    </div>
-
-    <div style="display:flex; flex-direction:column; gap:15px; min-width:260px;">
-        <div id="info"
-             style="padding:10px; border-left:2px solid #ccc; font-size:14px;">
-        </div>
-
-        <div id="best"
-             style="padding:10px; border-left:2px solid #ccc; font-size:14px; background:#f7f7f7;">
-        </div>
-    </div>
-
-</div>
+<!-- 🟦 CONTENEUR PRINCIPAL : CARTE + PANNEAU DROIT -->
 <div id="container">
+
+    <!-- 🗺️ Carte -->
     <div id="map"></div>
 
+    <!-- 📌 Panneau latéral -->
     <div id="sidebar">
+        <button id="new">Nouvelle commune</button>
+
         <h3>Historique des essais</h3>
         <div id="info"></div>
+
+        <h3>Meilleur score</h3>
+        <div id="best"></div>
     </div>
+
 </div>
 
+<!-- 🎯 Zone d’affichage de la commune cible -->
 <div id="target"
      style="position:fixed; bottom:20px; right:20px; background:white; padding:10px; border:1px solid #ccc; border-radius:6px; z-index:9999;">
 </div>
