@@ -133,8 +133,8 @@ fetch('./data/GeoJSON_communes.geojson')
             // Reset styles
             allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
-            // Reset texte
-            document.getElementById('info').innerHTML = '';
+            // ❗ On NE vide PAS les infos pour conserver les données de l’essai précédent
+            // document.getElementById('info').innerHTML = '';
 
             // Nouvelle commune
             correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
@@ -166,6 +166,7 @@ fetch('./data/GeoJSON_communes.geojson')
             gameActive = true;
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
+            document.getElementById('info').innerHTML = ""; // reset affichage
             pickNewCommune();
         }
 
