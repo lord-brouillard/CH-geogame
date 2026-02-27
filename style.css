@@ -47,4 +47,9 @@ footer {
 .suggestions div:hover {
     background: #eee;
 }
+#map { 
+	height: 100vh; 
+	width: 100%;
+	background: white;
+}
 
