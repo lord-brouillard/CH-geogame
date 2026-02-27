@@ -1,6 +1,7 @@
 let allFeatures = [];
 let correctFeature = null;
 let blinkInterval = null;
+let hasClicked = false;   // ← Empêche tout clignotement avant le premier clic
 
 // Fonction distance (Haversine)
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -50,9 +51,11 @@ fetch('./data/GeoJSON_communes.geojson')
                     // Reset styles
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
-                    // Stopper le clignotement précédent
-                    if (blinkInterval) clearInterval(blinkInterval);
-                    correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
+                    // Stopper le clignotement précédent uniquement si déjà lancé
+                    if (hasClicked && blinkInterval) {
+                        clearInterval(blinkInterval);
+                        correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
+                    }
 
                     // Colorer la commune cliquée
                     lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
@@ -68,7 +71,9 @@ fetch('./data/GeoJSON_communes.geojson')
                             `Distance avec la commune juste : <b>${d} km</b>`;
                     }
 
-                    // Lancer le clignotement uniquement maintenant
+                    // Lancer le clignotement uniquement après le premier clic
+                    hasClicked = true;
+
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
