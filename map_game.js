@@ -90,7 +90,7 @@ fetch('./data/GeoJSON_communes.geojson')
                     score += pts;
                     attempts++;
 
-                    // Ajout à l'historique (NE DISPARAÎT PAS)
+                    // Ajout à l'historique
                     document.getElementById('info').innerHTML +=
                         `<div style="margin-bottom:10px;">
                             <b>Essai ${attempts}/${maxAttempts}</b><br>
@@ -143,7 +143,7 @@ fetch('./data/GeoJSON_communes.geojson')
             document.getElementById('target').innerHTML =
                 `Commune à trouver : <b>${p.NAME}</b>`;
 
-            hasClicked = false; // IMPORTANT
+            hasClicked = false; // 🔥 indispensable
         }
 
         // Fin de partie
@@ -176,7 +176,7 @@ fetch('./data/GeoJSON_communes.geojson')
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
 
-            // ❗ Tu veux garder l’historique → on NE vide PAS info
+            // Historique conservé → on ne vide pas info
             // document.getElementById('info').innerHTML = "";
 
             pickNewCommune();
@@ -196,6 +196,9 @@ fetch('./data/GeoJSON_communes.geojson')
         const newBtn = document.getElementById('new');
         if (newBtn) {
             newBtn.addEventListener('click', () => {
+
+                hasClicked = false; // 🔥 corrige ton bug d’essai n°2
+
                 if (!gameActive) resetGame();
                 else pickNewCommune();
             });
