@@ -1,7 +1,7 @@
 let allFeatures = [];
 let correctFeature = null;
 let blinkInterval = null;
-let hasClicked = false;   // ← Empêche tout clignotement avant le premier clic
+let hasClicked = false;
 
 // Fonction distance (Haversine)
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -45,13 +45,13 @@ fetch('./data/GeoJSON_communes.geojson')
                     lyr.setStyle({ weight: 1, color: '#000' });
                 });
 
-                // Clic → coloration + distance + clignotement
+                // Clic
                 lyr.on('click', () => {
 
                     // Reset styles
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
-                    // Stopper le clignotement précédent uniquement si déjà lancé
+                    // Stopper clignotement précédent
                     if (hasClicked && blinkInterval) {
                         clearInterval(blinkInterval);
                         correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
@@ -61,17 +61,14 @@ fetch('./data/GeoJSON_communes.geojson')
                     lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
 
                     // Calcul distance
-                    if (correctFeature) {
-                        const c1 = lyr.getBounds().getCenter();
-                        const c2 = correctFeature.getBounds().getCenter();
+                    const c1 = lyr.getBounds().getCenter();
+                    const c2 = correctFeature.getBounds().getCenter();
+                    const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng).toFixed(2);
 
-                        const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng).toFixed(2);
+                    document.getElementById('info').innerHTML =
+                        `Distance avec la commune juste : <b>${d} km</b>`;
 
-                        document.getElementById('info').innerHTML =
-                            `Distance avec la commune juste : <b>${d} km</b>`;
-                    }
-
-                    // Lancer le clignotement uniquement après le premier clic
+                    // Lancer le clignotement
                     hasClicked = true;
 
                     let visible = true;
@@ -89,11 +86,31 @@ fetch('./data/GeoJSON_communes.geojson')
         layer.addTo(map);
         map.fitBounds(layer.getBounds());
 
-        // Sélection aléatoire d'une commune juste
-        correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
+        // Fonction pour choisir une nouvelle commune
+        function pickNewCommune() {
+            // Stopper clignotement
+            if (blinkInterval) clearInterval(blinkInterval);
 
-        // Affichage en bas à droite
-        const p = correctFeature.feature.properties;
-        const box = document.getElementById('target');
-        box.innerHTML = `Commune à trouver : <b>${p.NAME}</b>`;
+            // Reset styles
+            allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+
+            // Reset texte
+            document.getElementById('info').innerHTML = '';
+
+            // Nouvelle commune
+            correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
+
+            // Affichage
+            const p = correctFeature.feature.properties;
+            document.getElementById('target').innerHTML =
+                `Commune à trouver : <b>${p.NAME}</b>`;
+
+            hasClicked = false;
+        }
+
+        // Premier tirage
+        pickNewCommune();
+
+        // Bouton nouvelle commune
+        document.getElementById('new').addEventListener('click', pickNewCommune);
     });
