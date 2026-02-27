@@ -33,7 +33,7 @@ const map = L.map('map', {
 L.control.zoom({ position: 'topright' }).addTo(map);
 
 // 🟦 1) Charger le territoire suisse (fond non interactif)
-fetch('./data/Shapefile_CH.geojson')
+fetch('./data/GeoJSON_CH_v2.geojson')
     .then(r => r.json())
     .then(territoire => {
 
@@ -51,7 +51,7 @@ fetch('./data/Shapefile_CH.geojson')
         }).addTo(map);
 
         // 🟩 2) Charger les montagnes (couche interactive du jeu)
-        return fetch('./data/GeoJSON_montagnes.geojson');
+        return fetch('./data/GeoJSON_montagnes_v2.geojson');
     })
     .then(r => r.json())
     .then(geojson => {
