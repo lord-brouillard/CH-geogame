@@ -46,8 +46,13 @@ fetch('./data/GeoJSON_communes.geojson')
 
                 // Clic → coloration + distance + clignotement
                 lyr.on('click', () => {
+
                     // Reset styles
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+
+                    // Stopper le clignotement précédent
+                    if (blinkInterval) clearInterval(blinkInterval);
+                    correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
 
                     // Colorer la commune cliquée
                     lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
@@ -63,9 +68,7 @@ fetch('./data/GeoJSON_communes.geojson')
                             `Distance avec la commune juste : <b>${d} km</b>`;
                     }
 
-                    // Lancer le clignotement après clic
-                    if (blinkInterval) clearInterval(blinkInterval);
-
+                    // Lancer le clignotement uniquement maintenant
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
