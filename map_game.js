@@ -203,7 +203,13 @@ fetch('./data/GeoJSON_communes.geojson')
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
 
+        // ✅ VERSION MODIFIÉE : fonctionne pendant la partie ET après
         document.getElementById('new').addEventListener('click', () => {
-            if (!gameActive) resetGame();
+            if (!gameActive) {
+                resetGame();      // Partie terminée → nouvelle partie
+            } else {
+                pickNewCommune(); // Partie en cours → nouvelle commune
+                document.getElementById('info').innerHTML = ""; // optionnel
+            }
         });
     });
