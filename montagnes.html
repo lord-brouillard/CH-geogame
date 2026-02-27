@@ -4,27 +4,53 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
+
     <style>
-        #container {
-            display: flex;
-            height: 80vh;
-            margin-top: 20px;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
         }
 
         #map {
-            flex: 1;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 300px;
+            bottom: 0;
             background: white;
         }
 
         #sidebar {
+            position: absolute;
+            top: 60px;
+            right: 0;
             width: 300px;
+            bottom: 0;
             background: #f7f7f7;
             border-left: 1px solid #ccc;
             padding: 15px;
             overflow-y: auto;
         }
+
+        #bottomPanel {
+            position: absolute;
+            bottom: 15px;
+            right: 320px;
+            background: rgba(255,255,255,0.95);
+            padding: 10px 15px;
+            border: 1px solid #aaa;
+            border-radius: 6px;
+            font-size: 16px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+            z-index: 9999;
+        }
+
+        #bottomPanel b {
+            font-size: 17px;
+        }
     </style>
 </head>
+
 <body>
 
 <header>
@@ -39,53 +65,30 @@
     <li><a href="communes.html">Communes</a></li>
 </ul>
 
-<!-- 🟦 CONTENEUR PRINCIPAL : CARTE + PANNEAU DROIT -->
-<div id="container">
+<!-- 🗺️ Carte -->
+<div id="map"></div>
 
-    <!-- 🗺️ Carte -->
-    <div id="map"></div>
+<!-- 📌 Panneau latéral -->
+<div id="sidebar">
+    <button id="new">Nouvelle montagne</button>
 
-    <!-- 📌 Panneau latéral -->
-    <div id="sidebar">
-        <button id="new">Nouvelle montagne</button>
+    <h3>Historique des essais</h3>
+    <div id="info"></div>
 
-        <h3>Historique des essais</h3>
-        <div id="info"></div>
+    <h3>Meilleur score</h3>
+    <div id="best"></div>
 
-        <h3>Meilleur score</h3>
-        <div id="best"></div>
-    </div>
-
-</div>
-<div id="randomNameBox"
-     style="
-        position: fixed;
-        bottom: 15px;
-        right: 15px;
-        background: rgba(255,255,255,0.9);
-        padding: 10px 15px;
-        border: 1px solid #aaa;
-        border-radius: 6px;
-        font-size: 14px;
-        box-shadow: 0 0 8px rgba(0,0,0,0.2);
-        z-index: 9999;
-     ">
-    Montagne actuelle : <b>---</b>
-</div>
-
-<!-- 🗂️ Archive des parties -->
-<div id="archive" style="margin-top:20px; padding:10px;">
     <h3>Historique des parties</h3>
+    <div id="archive"></div>
 </div>
 
-<!-- 🎯 Zone d’affichage de la montagne cible -->
-<div id="target"
-     style="position:fixed; bottom:20px; right:20px; background:white; padding:10px; border:1px solid #ccc; border-radius:6px; z-index:9999;">
+<!-- 🎯 Panneau bas : montagne à trouver -->
+<div id="bottomPanel">
+    Montagne à trouver : <b id="randomNameText">---</b>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="map_montagnes.js"></script>
 
-<footer></footer>
 </body>
 </html>
