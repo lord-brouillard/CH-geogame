@@ -8,7 +8,7 @@ const maxAttempts = 5;
 let gameActive = true;
 let hasClicked = false;
 
-let currentAttemptsLog = []; // 🆕 Log interne des essais
+let currentAttemptsLog = []; // Log interne des essais
 
 let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
@@ -83,7 +83,7 @@ fetch('./data/GeoJSON_communes.geojson')
                     score += pts;
                     attempts++;
 
-                    // 📝 Log interne de l’essai
+                    // Log interne
                     currentAttemptsLog.push({
                         attempt: attempts,
                         distance: d.toFixed(2),
@@ -155,7 +155,7 @@ fetch('./data/GeoJSON_communes.geojson')
             document.getElementById('best').innerHTML =
                 `Meilleur score : <b>${bestScore}</b>`;
 
-            // 🗂️ ARCHIVAGE COMPLET DE LA PARTIE
+            // ARCHIVAGE COMPLET
             const p = correctFeature.feature.properties;
             let html = `<div style="padding:10px; border:1px solid #ccc; margin-bottom:10px;">
                             <b>Partie terminée</b> — ${new Date().toLocaleString()}<br>
@@ -178,7 +178,6 @@ fetch('./data/GeoJSON_communes.geojson')
             gameActive = true;
             hasClicked = false;
 
-            // 🔄 Reset de l’historique d’essais
             document.getElementById('info').innerHTML = "";
             currentAttemptsLog = [];
 
@@ -195,11 +194,29 @@ fetch('./data/GeoJSON_communes.geojson')
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
 
+        // 🔥 ANTI‑TRICHE : changer de commune consomme un essai
         document.getElementById('new').addEventListener('click', () => {
 
-            hasClicked = false;
+            if (!gameActive) {
+                resetGame();
+                return;
+            }
 
-            if (!gameActive) resetGame();
-            else pickNewCommune();
+            attempts++;
+
+            document.getElementById('info').innerHTML +=
+                `<div style="margin-bottom:10px;">
+                    <b>Changement de commune</b><br>
+                    Essai utilisé : <b>${attempts}/${maxAttempts}</b><br>
+                    Aucun point gagné.
+                 </div><hr>`;
+
+            if (attempts >= maxAttempts) {
+                endGame();
+                return;
+            }
+
+            hasClicked = false;
+            pickNewCommune();
         });
     });
