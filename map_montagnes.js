@@ -149,12 +149,12 @@ fetch('./data/GeoJSON_CH_v2.geojson')
         let featuresLoaded = 0;
         const totalFeatures = geojson.features.length;
 
-        layer.on('layeradd', () => {
-            featuresLoaded++;
-            if (featuresLoaded === totalFeatures) {
-                pickNewMontagne();
-            }
-        });
+        map.on('layeradd', () => {
+    if (allFeatures.length === geojson.features.length) {
+        pickNewMontagne();
+    }
+});
+
 
         function pickNewMontagne() {
 
