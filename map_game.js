@@ -77,12 +77,9 @@ fetch('./data/GeoJSON_communes.geojson')
                     const c2 = correctFeature.getBounds().getCenter();
                     const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
 
-                    // Attribution des points
-                    let pts = 0;
-                    if (d === 0) pts = 100;
-                    else if (d <= 25) pts = 75;
-                    else if (d <= 50) pts = 50;
-                    else if (d <= 100) pts = 25;
+                    // Nouveau calcul des points : 1 km = 1 point de moins
+                    let dist = Math.round(d);
+                    let pts = Math.max(0, 100 - dist);
 
                     score += pts;
                     attempts++;
