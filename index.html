@@ -25,7 +25,21 @@
 <div id="map"></div>
 <div id="info" class="info"></div>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<button id="new">Nouvelle commune</button>
+<div id="ui-container" style="display:flex; align-items:flex-start; gap:20px;">
+
+    <!-- Colonne gauche : bouton + commune à trouver -->
+    <div>
+        <button id="new">Nouvelle commune</button>
+        <div id="target" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- Colonne droite : historique -->
+    <div id="info"
+         style="min-width:260px; padding:10px; border-left:2px solid #ccc; font-size:14px;">
+    </div>
+
+</div>
+
 <script src="map_game.js"></script>
 <div id="target" style="position:fixed; bottom:20px; right:20px; background:white; padding:10px; border:1px solid #ccc; z-index:9999;"> </div>
 
