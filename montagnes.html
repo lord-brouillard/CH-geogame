@@ -1,10 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        #container {
+            display: flex;
+            height: 80vh;
+            margin-top: 20px;
+        }
+
+        #map {
+            flex: 1;
+            background: white;
+        }
+
+        #sidebar {
+            width: 300px;
+            background: #f7f7f7;
+            border-left: 1px solid #ccc;
+            padding: 15px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body>
 
+<header>
+    <h1>CH-Geogame</h1>
+</header>
+
+<ul class="topnav">
+    <li><a href="index.html">Home</a></li>
+	<li><a href="montagnes.html">Montagnes</a></li>
+    <li><a href="classement.html">Classement</a></li>
+    <li><a href="cantons.html">Cantons</a></li>
+    <li><a href="communes.html">Communes</a></li>
+</ul>
+
+<!-- 🟦 CONTENEUR PRINCIPAL : CARTE + PANNEAU DROIT -->
+<div id="container">
+
+    <!-- 🗺️ Carte -->
+    <div id="map"></div>
+
+    <!-- 📌 Panneau latéral -->
+    <div id="sidebar">
+        <button id="new">Nouvelle commune</button>
+
+        <h3>Historique des essais</h3>
+        <div id="info"></div>
+
+        <h3>Meilleur score</h3>
+        <div id="best"></div>
+    </div>
+
+</div>
+<div id="archive" style="margin-top:20px; padding:10px;"> <h3>Historique des parties</h3> </div>
+
+<!-- 🎯 Zone d’affichage de la commune cible -->
+<div id="target"
+     style="position:fixed; bottom:20px; right:20px; background:white; padding:10px; border:1px solid #ccc; border-radius:6px; z-index:9999;">
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="map_montagnes.js"></script>
+
+<footer></footer>
 </body>
 </html>
