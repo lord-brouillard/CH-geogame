@@ -2,27 +2,24 @@ let allFeatures = [];
 let correctFeature = null;
 let blinkInterval = null;
 
-// Gestion du jeu
 let score = 0;
 let attempts = 0;
 const maxAttempts = 5;
 let gameActive = true;
 let hasClicked = false;
 
-// Record (meilleur score de partie)
 let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
     : 0;
 
-// Fonction distance (Haversine)
 function distanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const dLon = (lat2 - lon1) * Math.PI / 180;
     const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.sin(dLat/2) ** 2 +
         Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
-        Math.sin(dLon/2) * Math.sin(dLon/2);
+        Math.sin(dLon/2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
@@ -47,7 +44,6 @@ fetch('./data/GeoJSON_communes.geojson')
             onEachFeature: (feature, lyr) => {
                 allFeatures.push(lyr);
 
-                // Hover
                 lyr.on('mouseover', () => {
                     if (!gameActive) return;
                     lyr.setStyle({ weight: 3, color: 'blue' });
@@ -58,7 +54,6 @@ fetch('./data/GeoJSON_communes.geojson')
                     lyr.setStyle({ weight: 1, color: '#000' });
                 });
 
-                // Clic
                 lyr.on('click', () => {
 
                     if (!gameActive) return;
@@ -66,20 +61,16 @@ fetch('./data/GeoJSON_communes.geojson')
                     if (hasClicked) return;
                     hasClicked = true;
 
-                    // Reset styles
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
-                    // Stopper clignotement précédent
                     if (blinkInterval) {
                         clearInterval(blinkInterval);
                         blinkInterval = null;
                         correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
                     }
 
-                    // Colorer la commune cliquée
                     lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
 
-                    // Calcul distance
                     const c1 = lyr.getBounds().getCenter();
                     const c2 = correctFeature.getBounds().getCenter();
                     const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
@@ -90,7 +81,6 @@ fetch('./data/GeoJSON_communes.geojson')
                     score += pts;
                     attempts++;
 
-                    // Ajout à l'historique
                     document.getElementById('info').innerHTML +=
                         `<div style="margin-bottom:10px;">
                             <b>Essai ${attempts}/${maxAttempts}</b><br>
@@ -99,7 +89,6 @@ fetch('./data/GeoJSON_communes.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
-                    // Clignotement de la bonne commune
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
@@ -109,13 +98,11 @@ fetch('./data/GeoJSON_communes.geojson')
                         visible = !visible;
                     }, 500);
 
-                    // Fin de partie ?
                     if (attempts >= maxAttempts) {
                         endGame();
-                        return; // 🔥 empêche le setTimeout de lancer une nouvelle commune
+                        return;
                     }
 
-                    // Passage automatique à une nouvelle commune
                     setTimeout(() => {
                         if (gameActive) pickNewCommune();
                     }, 1200);
@@ -126,7 +113,6 @@ fetch('./data/GeoJSON_communes.geojson')
         layer.addTo(map);
         map.fitBounds(layer.getBounds());
 
-        // Choisir une nouvelle commune
         function pickNewCommune() {
 
             if (!gameActive) return;
@@ -147,13 +133,11 @@ fetch('./data/GeoJSON_communes.geojson')
             hasClicked = false;
         }
 
-        // Fin de partie
         function endGame() {
             gameActive = false;
 
             if (blinkInterval) clearInterval(blinkInterval);
 
-            // Mise à jour du record (par partie)
             if (score > bestScore) {
                 bestScore = score;
                 localStorage.setItem("bestScore", bestScore);
@@ -168,7 +152,6 @@ fetch('./data/GeoJSON_communes.geojson')
                 `Meilleur score : <b>${bestScore}</b>`;
         }
 
-        // Redémarrer une partie
         function resetGame() {
             score = 0;
             attempts = 0;
@@ -183,14 +166,11 @@ fetch('./data/GeoJSON_communes.geojson')
                 `Meilleur score : <b>${bestScore}</b>`;
         }
 
-        // Premier tirage
         pickNewCommune();
 
-        // Affichage initial du record
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
 
-        // Bouton nouvelle commune / nouvelle partie
         const newBtn = document.getElementById('new');
         if (newBtn) {
             newBtn.addEventListener('click', () => {
