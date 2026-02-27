@@ -32,15 +32,15 @@ const map = L.map('map', {
 
 L.control.zoom({ position: 'topright' }).addTo(map);
 
-// 🟦 1) Charger le territoire suisse (fond non interactif)
+// 1) Fond Suisse non interactif
 fetch('./data/GeoJSON_CH_v2.geojson')
     .then(r => r.json())
     .then(territoire => {
 
-        // 🟩 Correction : ignorer la 3e coordonnée (altitude) UNIQUEMENT pour GeoJSON_CH
         L.geoJSON(territoire, {
             coordsToLatLng: function (coords) {
-                return L.latLng(coords[1], coords[0]); // ignore altitude
+                // ignore la 3e coordonnée (altitude)
+                return L.latLng(coords[1], coords[0]);
             },
             style: {
                 color: "#444",
@@ -50,7 +50,7 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             }
         }).addTo(map);
 
-        // 🟩 2) Charger les montagnes (couche interactive du jeu)
+        // 2) Couche interactive des montagnes
         return fetch('./data/GeoJSON_montagnes_v2.geojson');
     })
     .then(r => r.json())
@@ -85,14 +85,17 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
                     document.getElementById('new').disabled = false;
 
+                    // reset visuel
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
+                    // arrêter un éventuel clignotement précédent
                     if (blinkInterval) {
                         clearInterval(blinkInterval);
                         blinkInterval = null;
                         correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
                     }
 
+                    // montagne choisie par le joueur
                     lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
 
                     const c1 = lyr.getBounds().getCenter();
@@ -120,6 +123,7 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
+                    // clignotement de la bonne montagne à CHAQUE essai
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
@@ -144,6 +148,7 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
         function pickNewMontagne() {
 
+            // arrêter un éventuel clignotement précédent
             if (blinkInterval) {
                 clearInterval(blinkInterval);
                 blinkInterval = null;
@@ -151,20 +156,21 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
             allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
+            // montagne cible aléatoire
             correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
 
             const p = correctFeature.feature.properties;
-
             document.getElementById('target').innerHTML =
                 `Montagne à trouver : <b>${p.NAME}</b>`;
 
             hasClicked = false;
-
             document.getElementById('new').disabled = true;
         }
 
         function endGame() {
             gameActive = false;
+
+            // on laisse le clignotement du dernier essai actif
 
             if (score > bestScore) {
                 bestScore = score;
@@ -199,6 +205,7 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
         function resetGame() {
 
+            // stopper le clignotement quand on lance une nouvelle partie
             if (blinkInterval) {
                 clearInterval(blinkInterval);
                 blinkInterval = null;
@@ -221,6 +228,7 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                 `Meilleur score : <b>${bestScore}</b>`;
         }
 
+        // init
         pickNewMontagne();
 
         document.getElementById('best').innerHTML =
