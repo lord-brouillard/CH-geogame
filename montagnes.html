@@ -28,12 +28,12 @@
 <body>
 
 <header>
-    <h1>CH-Geogame</h1>
+    <h1>CH-Geogame — Montagnes</h1>
 </header>
 
 <ul class="topnav">
     <li><a href="index.html">Home</a></li>
-	<li><a href="montagnes.html">Montagnes</a></li>
+    <li><a class="active" href="montagnes.html">Montagnes</a></li>
     <li><a href="classement.html">Classement</a></li>
     <li><a href="cantons.html">Cantons</a></li>
     <li><a href="communes.html">Communes</a></li>
@@ -47,7 +47,7 @@
 
     <!-- 📌 Panneau latéral -->
     <div id="sidebar">
-        <button id="new">Nouvelle commune</button>
+        <button id="new">Nouvelle montagne</button>
 
         <h3>Historique des essais</h3>
         <div id="info"></div>
@@ -57,9 +57,13 @@
     </div>
 
 </div>
-<div id="archive" style="margin-top:20px; padding:10px;"> <h3>Historique des parties</h3> </div>
 
-<!-- 🎯 Zone d’affichage de la commune cible -->
+<!-- 🗂️ Archive des parties -->
+<div id="archive" style="margin-top:20px; padding:10px;">
+    <h3>Historique des parties</h3>
+</div>
+
+<!-- 🎯 Zone d’affichage de la montagne cible -->
 <div id="target"
      style="position:fixed; bottom:20px; right:20px; background:white; padding:10px; border:1px solid #ccc; border-radius:6px; z-index:9999;">
 </div>
