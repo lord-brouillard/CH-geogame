@@ -8,6 +8,8 @@ const maxAttempts = 5;
 let gameActive = true;
 let hasClicked = false;
 
+let currentAttemptsLog = []; // 🆕 Log interne des essais
+
 let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
     : 0;
@@ -81,6 +83,14 @@ fetch('./data/GeoJSON_communes.geojson')
                     score += pts;
                     attempts++;
 
+                    // 📝 Log interne de l’essai
+                    currentAttemptsLog.push({
+                        attempt: attempts,
+                        distance: d.toFixed(2),
+                        points: pts,
+                        total: score
+                    });
+
                     document.getElementById('info').innerHTML +=
                         `<div style="margin-bottom:10px;">
                             <b>Essai ${attempts}/${maxAttempts}</b><br>
@@ -144,6 +154,22 @@ fetch('./data/GeoJSON_communes.geojson')
 
             document.getElementById('best').innerHTML =
                 `Meilleur score : <b>${bestScore}</b>`;
+
+            // 🗂️ ARCHIVAGE COMPLET DE LA PARTIE
+            const p = correctFeature.feature.properties;
+            let html = `<div style="padding:10px; border:1px solid #ccc; margin-bottom:10px;">
+                            <b>Partie terminée</b> — ${new Date().toLocaleString()}<br>
+                            Commune cible : <b>${p.NAME}</b><br>
+                            Score final : <b>${score}</b><br><br>
+                            <u>Détails des essais :</u><br>`;
+
+            currentAttemptsLog.forEach(a => {
+                html += `Essai ${a.attempt} — Distance : ${a.distance} km — Points : ${a.points} — Total : ${a.total}<br>`;
+            });
+
+            html += `</div>`;
+
+            document.getElementById('archive').innerHTML += html;
         }
 
         function resetGame() {
@@ -152,8 +178,9 @@ fetch('./data/GeoJSON_communes.geojson')
             gameActive = true;
             hasClicked = false;
 
-            // 🔥 Réinitialisation de l'historique
+            // 🔄 Reset de l’historique d’essais
             document.getElementById('info').innerHTML = "";
+            currentAttemptsLog = [];
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
 
