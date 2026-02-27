@@ -54,15 +54,22 @@ fetch('./data/GeoJSON_CH_v2.geojson')
     .then(geojson => {
 
         const layer = L.geoJSON(geojson, {
-            style: {
-                color: '#000',
-                weight: 1,
-                fillOpacity: 0.2
+
+            // 🔥 Rendre les Points en circleMarker stylables
+            pointToLayer: (feature, latlng) => {
+                return L.circleMarker(latlng, {
+                    radius: 6,
+                    color: '#000',
+                    weight: 1,
+                    fillColor: '#ddd',
+                    fillOpacity: 0.6
+                });
             },
 
             onEachFeature: (feature, lyr) => {
                 allFeatures.push(lyr);
 
+                // Hover
                 lyr.on('mouseover', () => {
                     if (!gameActive) return;
                     lyr.setStyle({ weight: 3, color: 'blue' });
@@ -73,6 +80,7 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                     lyr.setStyle({ weight: 1, color: '#000' });
                 });
 
+                // Clic
                 lyr.on('click', () => {
 
                     if (!gameActive) return;
@@ -83,20 +91,28 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                     document.getElementById('new').disabled = false;
 
                     // reset visuel
-                    allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+                    allFeatures.forEach(f => f.setStyle({
+                        fillColor: '#ddd',
+                        fillOpacity: 0.6,
+                        color: '#000',
+                        weight: 1
+                    }));
 
                     // arrêter un éventuel clignotement précédent
                     if (blinkInterval) {
                         clearInterval(blinkInterval);
                         blinkInterval = null;
-                        correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
+                        correctFeature.setStyle({
+                            fillColor: '#ddd',
+                            fillOpacity: 0.6
+                        });
                     }
 
                     // montagne choisie par le joueur
-                    lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
+                    lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.9 });
 
-                    const c1 = lyr.getBounds().getCenter();
-                    const c2 = correctFeature.getBounds().getCenter();
+                    const c1 = lyr.getLatLng();
+                    const c2 = correctFeature.getLatLng();
                     const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
 
                     let dist = Math.round(d);
@@ -120,12 +136,12 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
-                    // clignotement de la bonne montagne
+                    // 🔥 Clignotement de la bonne montagne
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
-                            fillColor: visible ? 'red' : '',
-                            fillOpacity: visible ? 0.7 : 0.2
+                            fillColor: visible ? 'red' : '#ddd',
+                            fillOpacity: visible ? 0.9 : 0.6
                         });
                         visible = !visible;
                     }, 500);
@@ -153,7 +169,12 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                 blinkInterval = null;
             }
 
-            allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+            allFeatures.forEach(f => f.setStyle({
+                fillColor: '#ddd',
+                fillOpacity: 0.6,
+                color: '#000',
+                weight: 1
+            }));
 
             correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
 
@@ -162,7 +183,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             document.getElementById('target').innerHTML =
                 `Montagne à trouver : <b>${p.NAME}</b>`;
 
-            // 🔥 Mise à jour du panneau en bas à droite
             document.getElementById('randomNameText').textContent = p.NAME;
 
             hasClicked = false;
