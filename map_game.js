@@ -63,7 +63,7 @@ fetch('./data/GeoJSON_communes.geojson')
                     if (hasClicked) return;
                     hasClicked = true;
 
-                    // 🔓 Le joueur a cliqué → bouton réactivé
+                    // 🔓 Le joueur a cliqué → bouton réactivé pour permettre un changement
                     document.getElementById('new').disabled = false;
 
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
