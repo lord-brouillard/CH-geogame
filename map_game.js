@@ -9,6 +9,11 @@ const maxAttempts = 5;
 let gameActive = true;
 let hasClicked = false;
 
+// Record
+let bestScore = localStorage.getItem("bestScore")
+    ? parseInt(localStorage.getItem("bestScore"))
+    : 0;
+
 // Fonction distance (Haversine)
 function distanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -58,8 +63,6 @@ fetch('./data/GeoJSON_communes.geojson')
 
                     if (!gameActive) return;
                     if (!correctFeature) return;
-
-                    // Empêche plusieurs clics
                     if (hasClicked) return;
                     hasClicked = true;
 
@@ -87,16 +90,14 @@ fetch('./data/GeoJSON_communes.geojson')
                     score += pts;
                     attempts++;
 
-                   document.getElementById('info').innerHTML +=
-    `<div class="result" style="margin-bottom:10px;">
-        <b>Essai ${attempts}/${maxAttempts}</b><br>
-        Distance : <b>${d.toFixed(2)} km</b><br>
-        Points gagnés : <b>${pts}</b><br>
-        Score total : <b>${score}</b>
-     </div>
-     <hr>`;
-
-
+                    // Ajout à l'historique
+                    document.getElementById('info').innerHTML +=
+                        `<div style="margin-bottom:10px;">
+                            <b>Essai ${attempts}/${maxAttempts}</b><br>
+                            Distance : <b>${d.toFixed(2)} km</b><br>
+                            Points gagnés : <b>${pts}</b><br>
+                            Score total : <b>${score}</b>
+                         </div><hr>`;
 
                     // Clignotement de la bonne commune
                     let visible = true;
@@ -108,7 +109,7 @@ fetch('./data/GeoJSON_communes.geojson')
                         visible = !visible;
                     }, 500);
 
-                    // Passage automatique à une nouvelle commune après 1.2s
+                    // Passage automatique à une nouvelle commune
                     setTimeout(() => {
                         if (gameActive) pickNewCommune();
                     }, 1200);
@@ -129,22 +130,15 @@ fetch('./data/GeoJSON_communes.geojson')
 
             if (!gameActive) return;
 
-            // Stopper clignotement
             if (blinkInterval) {
                 clearInterval(blinkInterval);
                 blinkInterval = null;
             }
 
-            // Reset styles
             allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
-            // ❗ On NE vide PAS les infos pour conserver les données de l’essai précédent
-            // document.getElementById('info').innerHTML = '';
-
-            // Nouvelle commune
             correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
 
-            // Affichage
             const p = correctFeature.feature.properties;
             document.getElementById('target').innerHTML =
                 `Commune à trouver : <b>${p.NAME}</b>`;
@@ -158,10 +152,20 @@ fetch('./data/GeoJSON_communes.geojson')
 
             if (blinkInterval) clearInterval(blinkInterval);
 
+            // Mise à jour du record
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem("bestScore", bestScore);
+            }
+
             document.getElementById('target').innerHTML =
                 `🎉 Partie terminée ! Score final : <b>${score}</b>`;
 
             document.getElementById('new').innerHTML = "Nouvelle partie";
+
+            // Affichage du record
+            document.getElementById('best').innerHTML =
+                `Meilleur score : <b>${bestScore}</b>`;
         }
 
         // Redémarrer une partie
@@ -171,12 +175,20 @@ fetch('./data/GeoJSON_communes.geojson')
             gameActive = true;
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
-            document.getElementById('info').innerHTML = ""; // reset affichage
+            document.getElementById('info').innerHTML = "";
             pickNewCommune();
+
+            // Afficher le record
+            document.getElementById('best').innerHTML =
+                `Meilleur score : <b>${bestScore}</b>`;
         }
 
         // Premier tirage
         pickNewCommune();
+
+        // Affichage initial du record
+        document.getElementById('best').innerHTML =
+            `Meilleur score : <b>${bestScore}</b>`;
 
         // Bouton nouvelle commune / nouvelle partie
         const newBtn = document.getElementById('new');
