@@ -7,7 +7,7 @@ let score = 0;
 let attempts = 0;
 const maxAttempts = 5;
 let gameActive = true;
-let hasClicked = false; // Empêche de cliquer plusieurs fois sur la même commune
+let hasClicked = false;
 
 // Fonction distance (Haversine)
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -59,9 +59,8 @@ fetch('./data/GeoJSON_communes.geojson')
                     if (!gameActive) return;
                     if (!correctFeature) return;
 
-                    // Empêche de cliquer plusieurs fois sur la même commune
+                    // Empêche plusieurs clics
                     if (hasClicked) return;
-
                     hasClicked = true;
 
                     // Reset styles
@@ -82,7 +81,6 @@ fetch('./data/GeoJSON_communes.geojson')
                     const c2 = correctFeature.getBounds().getCenter();
                     const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
 
-                    // Score continu : 100 - distance arrondie
                     let dist = Math.round(d);
                     let pts = Math.max(0, 100 - dist);
 
@@ -104,6 +102,11 @@ fetch('./data/GeoJSON_communes.geojson')
                         });
                         visible = !visible;
                     }, 500);
+
+                    // Passage automatique à une nouvelle commune après 1.2s
+                    setTimeout(() => {
+                        if (gameActive) pickNewCommune();
+                    }, 1200);
 
                     // Fin de partie ?
                     if (attempts >= maxAttempts) {
