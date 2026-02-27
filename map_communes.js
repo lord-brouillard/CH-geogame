@@ -1,20 +1,18 @@
-let allFeatures = [];
+let allFeatures = []; // stockage des features
 
 const map = L.map('map', {
     zoomControl: false,
     attributionControl: false
 });
 
-// Fond de carte obligatoire
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19
+// Contrôle zoom
+L.control.zoom({
+    position: 'topright'
 }).addTo(map);
 
-// Contrôle zoom
-L.control.zoom({ position: 'topright' }).addTo(map);
-
+// Chargement du GeoJSON
 fetch('./data/GeoJSON_communes.geojson')
-    .then(r => r.json())
+    .then(response => response.json())
     .then(geojson => {
 
         const layer = L.geoJSON(geojson, {
@@ -31,7 +29,7 @@ fetch('./data/GeoJSON_communes.geojson')
 
                 const html = `
                     <b>${p.NAME}</b><br>
-                    Population : ${p.EINWOHNERZ}<br>
+                    Population : ${p.EINWOHNERZ} habitants<br>
                     Surface : ${p.GEM_FLAECH} ha
                 `;
 
@@ -42,11 +40,18 @@ fetch('./data/GeoJSON_communes.geojson')
                     if (info) info.innerHTML = html;
                 });
 
-                lyr.on('mouseover', () => lyr.setStyle({ weight: 3, color: 'blue' }));
-                lyr.on('mouseout', () => lyr.setStyle({ weight: 1, color: '#000' }));
+                lyr.on('mouseover', () => {
+                    lyr.setStyle({ weight: 3, color: 'blue' });
+                });
+
+                lyr.on('mouseout', () => {
+                    lyr.setStyle({ weight: 1, color: '#000' });
+                });
             }
         });
 
         layer.addTo(map);
+
+        // Zoom automatique sur le GeoJSON
         map.fitBounds(layer.getBounds());
     });
