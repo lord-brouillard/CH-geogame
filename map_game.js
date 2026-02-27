@@ -103,9 +103,8 @@ fetch('./data/GeoJSON_communes.geojson')
                         return;
                     }
 
-                    setTimeout(() => {
-                        pickNewCommune();   // 🔥 toujours appelé → hasClicked repasse à false
-                    }, 1200);
+                    // ❌ SUPPRIMÉ : plus de changement automatique
+                    // setTimeout(() => { pickNewCommune(); }, 1200);
                 });
             }
         });
@@ -128,7 +127,7 @@ fetch('./data/GeoJSON_communes.geojson')
             document.getElementById('target').innerHTML =
                 `Commune à trouver : <b>${p.NAME}</b>`;
 
-            hasClicked = false;   // 🔥 indispensable pour débloquer l’essai suivant
+            hasClicked = false;
         }
 
         function endGame() {
