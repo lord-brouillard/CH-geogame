@@ -1,13 +1,13 @@
 let allFeatures = [];
 let correctFeature = null;
 let blinkInterval = null;
-let hasClicked = false;
 
-// Nouveau : score et gestion de partie
+// Gestion du jeu
 let score = 0;
 let attempts = 0;
 const maxAttempts = 5;
 let gameActive = true;
+let hasClicked = false; // Empêche de cliquer plusieurs fois sur la même commune
 
 // Fonction distance (Haversine)
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -59,11 +59,16 @@ fetch('./data/GeoJSON_communes.geojson')
                     if (!gameActive) return;
                     if (!correctFeature) return;
 
+                    // Empêche de cliquer plusieurs fois sur la même commune
+                    if (hasClicked) return;
+
+                    hasClicked = true;
+
                     // Reset styles
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
                     // Stopper clignotement précédent
-                    if (hasClicked && blinkInterval) {
+                    if (blinkInterval) {
                         clearInterval(blinkInterval);
                         blinkInterval = null;
                         correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
@@ -77,7 +82,7 @@ fetch('./data/GeoJSON_communes.geojson')
                     const c2 = correctFeature.getBounds().getCenter();
                     const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
 
-                    // Nouveau calcul des points : 1 km = 1 point de moins
+                    // Score continu : 100 - distance arrondie
                     let dist = Math.round(d);
                     let pts = Math.max(0, 100 - dist);
 
@@ -90,9 +95,7 @@ fetch('./data/GeoJSON_communes.geojson')
                          Score total : <b>${score}</b><br>
                          Essai ${attempts}/${maxAttempts}`;
 
-                    // Lancer le clignotement
-                    hasClicked = true;
-
+                    // Clignotement de la bonne commune
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
@@ -113,7 +116,7 @@ fetch('./data/GeoJSON_communes.geojson')
         layer.addTo(map);
         map.fitBounds(layer.getBounds());
 
-        // Fonction pour choisir une nouvelle commune
+        // Choisir une nouvelle commune
         function pickNewCommune() {
 
             if (!gameActive) return;
