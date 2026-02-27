@@ -1,47 +1,41 @@
-let allFeatures = []; // stockage des features
+let allFeatures = [];
+let correctFeature = null; // la commune juste
+let blinkInterval = null;
+
+// Fonction distance (Haversine)
+function distanceKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
 
 const map = L.map('map', {
     zoomControl: false,
     attributionControl: false
 });
 
-// Contrôle zoom
-L.control.zoom({
-    position: 'topright'
-}).addTo(map);
+L.control.zoom({ position: 'topright' }).addTo(map);
 
-// ⚠️ AUCUNE couche de tuiles ici → pas d’OpenStreetMap
-
-// Chargement du GeoJSON
 fetch('./data/GeoJSON_communes.geojson')
-    .then(response => response.json())
+    .then(r => r.json())
     .then(geojson => {
 
         const layer = L.geoJSON(geojson, {
             style: {
                 color: '#000',
                 weight: 1,
-                fillOpacity: 0.01
+                fillOpacity: 0.2
             },
 
             onEachFeature: (feature, lyr) => {
                 allFeatures.push(lyr);
 
-                const p = feature.properties;
-
-                const html = `
-                    <b>${p.NAME}</b><br>
-                    Population : ${p.EINWOHNERZ} habitants<br>
-                    Surface : ${p.GEM_FLAECH} ha
-                `;
-
-                lyr.bindPopup(html);
-
-                lyr.on('click', () => {
-                    const info = document.getElementById('info');
-                    if (info) info.innerHTML = html;
-                });
-
+                // Effet hover
                 lyr.on('mouseover', () => {
                     lyr.setStyle({ weight: 3, color: 'blue' });
                 });
@@ -49,11 +43,47 @@ fetch('./data/GeoJSON_communes.geojson')
                 lyr.on('mouseout', () => {
                     lyr.setStyle({ weight: 1, color: '#000' });
                 });
+
+                // Clic → coloration + distance
+                lyr.on('click', () => {
+                    // Reset styles
+                    allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+
+                    // Colorer la commune cliquée
+                    lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
+
+                    // Calcul distance
+                    if (correctFeature) {
+                        const c1 = lyr.getBounds().getCenter();
+                        const c2 = correctFeature.getBounds().getCenter();
+
+                        const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng).toFixed(2);
+
+                        document.getElementById('info').innerHTML =
+                            `Distance avec la commune juste : <b>${d} km</b>`;
+                    }
+                });
             }
         });
 
         layer.addTo(map);
-
-        // Zoom automatique sur le GeoJSON
         map.fitBounds(layer.getBounds());
+
+        // Sélection aléatoire d'une commune juste
+        correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
+
+        // Affichage en bas à droite
+        const p = correctFeature.feature.properties;
+        const box = document.getElementById('target');
+        box.innerHTML = `Commune à trouver : <b>${p.NAME}</b>`;
+
+        // Clignotement
+        let visible = true;
+        blinkInterval = setInterval(() => {
+            correctFeature.setStyle({
+                fillColor: visible ? 'red' : '',
+                fillOpacity: visible ? 0.7 : 0.2
+            });
+            visible = !visible;
+        }, 500);
     });
