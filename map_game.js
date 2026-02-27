@@ -15,11 +15,11 @@ let bestScore = localStorage.getItem("bestScore")
 function distanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lat2 - lon1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
     const a =
-        Math.sin(dLat/2) ** 2 +
+        Math.sin(dLat/2)**2 +
         Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
-        Math.sin(dLon/2) ** 2;
+        Math.sin(dLon/2)**2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
@@ -104,7 +104,7 @@ fetch('./data/GeoJSON_communes.geojson')
                     }
 
                     setTimeout(() => {
-                        if (gameActive) pickNewCommune();
+                        pickNewCommune();   // 🔥 toujours appelé → hasClicked repasse à false
                     }, 1200);
                 });
             }
@@ -114,8 +114,6 @@ fetch('./data/GeoJSON_communes.geojson')
         map.fitBounds(layer.getBounds());
 
         function pickNewCommune() {
-
-            if (!gameActive) return;
 
             if (blinkInterval) {
                 clearInterval(blinkInterval);
@@ -130,7 +128,7 @@ fetch('./data/GeoJSON_communes.geojson')
             document.getElementById('target').innerHTML =
                 `Commune à trouver : <b>${p.NAME}</b>`;
 
-            hasClicked = false;
+            hasClicked = false;   // 🔥 indispensable pour débloquer l’essai suivant
         }
 
         function endGame() {
@@ -171,14 +169,11 @@ fetch('./data/GeoJSON_communes.geojson')
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
 
-        const newBtn = document.getElementById('new');
-        if (newBtn) {
-            newBtn.addEventListener('click', () => {
+        document.getElementById('new').addEventListener('click', () => {
 
-                hasClicked = false;
+            hasClicked = false;
 
-                if (!gameActive) resetGame();
-                else pickNewCommune();
-            });
-        }
+            if (!gameActive) resetGame();
+            else pickNewCommune();
+        });
     });
