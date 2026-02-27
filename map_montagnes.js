@@ -38,9 +38,7 @@ fetch('./data/GeoJSON_CH_v2.geojson')
     .then(territoire => {
 
         L.geoJSON(territoire, {
-            coordsToLatLng: function (coords) {
-                return L.latLng(coords[1], coords[0]);
-            },
+            coordsToLatLng: coords => L.latLng(coords[1], coords[0]),
             style: {
                 color: "#444",
                 weight: 1,
@@ -122,7 +120,7 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
-                    // clignotement de la bonne montagne à CHAQUE essai
+                    // clignotement de la bonne montagne
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
@@ -145,41 +143,31 @@ fetch('./data/GeoJSON_CH_v2.geojson')
         layer.addTo(map);
         map.fitBounds(layer.getBounds());
 
-        // 🟢 Correction : attendre que toutes les features soient chargées
-        let featuresLoaded = 0;
-        const totalFeatures = geojson.features.length;
-
-        map.on('layeradd', () => {
-    if (allFeatures.length === geojson.features.length) {
+        // 🔥 Toutes les features sont maintenant chargées
         pickNewMontagne();
-    }
-});
 
+        function pickNewMontagne() {
 
-function pickNewMontagne() {
+            if (blinkInterval) {
+                clearInterval(blinkInterval);
+                blinkInterval = null;
+            }
 
-    if (blinkInterval) {
-        clearInterval(blinkInterval);
-        blinkInterval = null;
-    }
+            allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
-    allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+            correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
 
-    correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
+            const p = correctFeature.feature.properties;
 
-    const p = correctFeature.feature.properties;
+            document.getElementById('target').innerHTML =
+                `Montagne à trouver : <b>${p.NAME}</b>`;
 
-    document.getElementById('target').innerHTML =
-        `Montagne à trouver : <b>${p.NAME}</b>`;
+            // 🔥 Mise à jour du panneau en bas à droite
+            document.getElementById('randomNameText').textContent = p.NAME;
 
-    // 🔥 Mise à jour du panneau en bas à droite
-    document.getElementById('randomNameText').textContent = p.NAME;
-
-    hasClicked = false;
-    document.getElementById('new').disabled = true;
-}
-
-
+            hasClicked = false;
+            document.getElementById('new').disabled = true;
+        }
 
         function endGame() {
             gameActive = false;
@@ -251,4 +239,3 @@ function pickNewMontagne() {
             }
         });
     });
-
