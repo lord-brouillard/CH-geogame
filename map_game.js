@@ -109,15 +109,16 @@ fetch('./data/GeoJSON_communes.geojson')
                         visible = !visible;
                     }, 500);
 
+                    // Fin de partie ?
+                    if (attempts >= maxAttempts) {
+                        endGame();
+                        return; // 🔥 empêche le setTimeout de lancer une nouvelle commune
+                    }
+
                     // Passage automatique à une nouvelle commune
                     setTimeout(() => {
                         if (gameActive) pickNewCommune();
                     }, 1200);
-
-                    // Fin de partie ?
-                    if (attempts >= maxAttempts) {
-                        endGame();
-                    }
                 });
             }
         });
@@ -143,7 +144,7 @@ fetch('./data/GeoJSON_communes.geojson')
             document.getElementById('target').innerHTML =
                 `Commune à trouver : <b>${p.NAME}</b>`;
 
-            hasClicked = false; // 🔥 indispensable
+            hasClicked = false;
         }
 
         // Fin de partie
@@ -176,9 +177,6 @@ fetch('./data/GeoJSON_communes.geojson')
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
 
-            // Historique conservé → on ne vide pas info
-            // document.getElementById('info').innerHTML = "";
-
             pickNewCommune();
 
             document.getElementById('best').innerHTML =
@@ -197,7 +195,7 @@ fetch('./data/GeoJSON_communes.geojson')
         if (newBtn) {
             newBtn.addEventListener('click', () => {
 
-                hasClicked = false; // 🔥 corrige ton bug d’essai n°2
+                hasClicked = false;
 
                 if (!gameActive) resetGame();
                 else pickNewCommune();
