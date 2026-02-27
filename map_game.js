@@ -48,12 +48,16 @@ fetch('./data/GeoJSON_communes.geojson')
                 // Clic
                 lyr.on('click', () => {
 
+                    // Empêche crash si aucune commune n’a encore été tirée
+                    if (!correctFeature) return;
+
                     // Reset styles
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
                     // Stopper clignotement précédent
                     if (hasClicked && blinkInterval) {
                         clearInterval(blinkInterval);
+                        blinkInterval = null;
                         correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
                     }
 
@@ -88,8 +92,12 @@ fetch('./data/GeoJSON_communes.geojson')
 
         // Fonction pour choisir une nouvelle commune
         function pickNewCommune() {
+
             // Stopper clignotement
-            if (blinkInterval) clearInterval(blinkInterval);
+            if (blinkInterval) {
+                clearInterval(blinkInterval);
+                blinkInterval = null;
+            }
 
             // Reset styles
             allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
