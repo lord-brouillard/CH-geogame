@@ -146,8 +146,7 @@ fetch('./data/GeoJSON_communes.geojson')
         function endGame() {
             gameActive = false;
 
-            // ❗ Correction : ne plus arrêter le clignotement ici
-            // if (blinkInterval) clearInterval(blinkInterval);
+            // ❗ Ne pas arrêter le clignotement ici → le dernier essai doit clignoter
 
             if (score > bestScore) {
                 bestScore = score;
@@ -180,6 +179,13 @@ fetch('./data/GeoJSON_communes.geojson')
         }
 
         function resetGame() {
+
+            // 🛑 Stopper le clignotement quand on lance une nouvelle partie
+            if (blinkInterval) {
+                clearInterval(blinkInterval);
+                blinkInterval = null;
+            }
+
             score = 0;
             attempts = 0;
             gameActive = true;
