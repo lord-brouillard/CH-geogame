@@ -63,7 +63,6 @@ fetch('./data/GeoJSON_communes.geojson')
                     if (hasClicked) return;
                     hasClicked = true;
 
-                    // 🔓 Le joueur a cliqué → bouton réactivé
                     document.getElementById('new').disabled = false;
 
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
@@ -101,6 +100,7 @@ fetch('./data/GeoJSON_communes.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
+                    // 🔴 Clignotement à CHAQUE essai
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
@@ -115,7 +115,6 @@ fetch('./data/GeoJSON_communes.geojson')
                         return;
                     }
 
-                    // 🆕 Permettre un nouveau clic au prochain essai
                     hasClicked = false;
                 });
             }
@@ -141,14 +140,14 @@ fetch('./data/GeoJSON_communes.geojson')
 
             hasClicked = false;
 
-            // 🔒 Anti‑triche : bouton désactivé tant qu’on n’a pas cliqué
             document.getElementById('new').disabled = true;
         }
 
         function endGame() {
             gameActive = false;
 
-            if (blinkInterval) clearInterval(blinkInterval);
+            // ❗ Correction : ne plus arrêter le clignotement ici
+            // if (blinkInterval) clearInterval(blinkInterval);
 
             if (score > bestScore) {
                 bestScore = score;
@@ -203,13 +202,12 @@ fetch('./data/GeoJSON_communes.geojson')
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
 
-        // ✅ VERSION MODIFIÉE : fonctionne pendant la partie ET après
         document.getElementById('new').addEventListener('click', () => {
             if (!gameActive) {
-                resetGame();      // Partie terminée → nouvelle partie
+                resetGame();
             } else {
-                pickNewCommune(); // Partie en cours → nouvelle commune
-                document.getElementById('info').innerHTML = ""; // optionnel
+                pickNewCommune();
+                document.getElementById('info').innerHTML = "";
             }
         });
     });
