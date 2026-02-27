@@ -32,8 +32,23 @@ const map = L.map('map', {
 
 L.control.zoom({ position: 'topright' }).addTo(map);
 
-// 🔥 CHANGER ICI : ton fichier GeoJSON des montagnes
-fetch('./data/GeoJSON_montagnes_4000_vf.geojson')
+// 🟦 1) Charger le territoire suisse (fond non interactif)
+fetch('./data/GeoJSON_CH.geojson')
+    .then(r => r.json())
+    .then(territoire => {
+
+        L.geoJSON(territoire, {
+            style: {
+                color: "#444",
+                weight: 1,
+                fillColor: "#ddd",
+                fillOpacity: 0.3
+            }
+        }).addTo(map);
+
+        // 🟩 2) Charger les montagnes (couche interactive du jeu)
+        return fetch('./data/GeoJSON_montagnes.geojson');
+    })
     .then(r => r.json())
     .then(geojson => {
 
@@ -101,7 +116,6 @@ fetch('./data/GeoJSON_montagnes_4000_vf.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
-                    // Clignotement à chaque essai
                     let visible = true;
                     blinkInterval = setInterval(() => {
                         correctFeature.setStyle({
@@ -137,7 +151,6 @@ fetch('./data/GeoJSON_montagnes_4000_vf.geojson')
 
             const p = correctFeature.feature.properties;
 
-            // 🔥 CHANGER ICI si ton champ n'est pas NAME
             document.getElementById('target').innerHTML =
                 `Montagne à trouver : <b>${p.NAME}</b>`;
 
