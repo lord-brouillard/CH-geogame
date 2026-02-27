@@ -37,7 +37,11 @@ fetch('./data/GeoJSON_CH.geojson')
     .then(r => r.json())
     .then(territoire => {
 
+        // 🟩 Correction : ignorer la 3e coordonnée (altitude) UNIQUEMENT pour GeoJSON_CH
         L.geoJSON(territoire, {
+            coordsToLatLng: function (coords) {
+                return L.latLng(coords[1], coords[0]); // ignore altitude
+            },
             style: {
                 color: "#444",
                 weight: 1,
