@@ -102,9 +102,6 @@ fetch('./data/GeoJSON_communes.geojson')
                         endGame();
                         return;
                     }
-
-                    // ❌ SUPPRIMÉ : plus de changement automatique
-                    // setTimeout(() => { pickNewCommune(); }, 1200);
                 });
             }
         });
@@ -154,6 +151,9 @@ fetch('./data/GeoJSON_communes.geojson')
             attempts = 0;
             gameActive = true;
             hasClicked = false;
+
+            // 🔥 Réinitialisation de l'historique
+            document.getElementById('info').innerHTML = "";
 
             document.getElementById('new').innerHTML = "Nouvelle commune";
 
