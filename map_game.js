@@ -14,7 +14,6 @@ let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
     : 0;
 
-// 🔵 Select canton (HTML)
 const selectCanton = document.getElementById("selectCanton");
 
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -35,25 +34,22 @@ const map = L.map('map', {
 
 L.control.zoom({ position: 'topright' }).addTo(map);
 
-let geojsonData = null; // 🔵 on stocke le GeoJSON une fois
+let geojsonData = null;
 
-// 🔵 construit la couche en fonction du canton sélectionné
-function buildLayerForCurrentCanton() {
-    if (!geojsonData) return;
+// 🔵 Construit la couche filtrée selon le canton
+function buildLayer() {
 
-    // reset des features
     allFeatures = [];
 
-    const canton = selectCanton.value; // string
-    const featuresFiltrees = canton
+    const canton = selectCanton.value;
+
+    const filtered = canton
         ? geojsonData.features.filter(f => f.properties.KANTONSNUM == canton)
         : geojsonData.features;
 
-    if (window.layer) {
-        map.removeLayer(window.layer);
-    }
+    if (window.layer) map.removeLayer(window.layer);
 
-    if (!featuresFiltrees.length) {
+    if (!filtered.length) {
         gameActive = false;
         document.getElementById('target').innerHTML =
             "Aucune commune trouvée pour ce canton.";
@@ -61,10 +57,7 @@ function buildLayerForCurrentCanton() {
     }
 
     window.layer = L.geoJSON(
-        {
-            type: "FeatureCollection",
-            features: featuresFiltrees
-        },
+        { type: "FeatureCollection", features: filtered },
         {
             style: {
                 color: '#000',
@@ -89,7 +82,7 @@ function buildLayerForCurrentCanton() {
 
                     if (!gameActive) return;
                     if (!correctFeature) return;
-                    if (hasClicked) return;
+                    if (hasClicked) return;   // 🔴 empêche les clics multiples
                     hasClicked = true;
 
                     document.getElementById('new').disabled = false;
@@ -142,8 +135,6 @@ function buildLayerForCurrentCanton() {
                         endGame();
                         return;
                     }
-
-                    hasClicked = false;
                 });
             }
         }
@@ -152,7 +143,6 @@ function buildLayerForCurrentCanton() {
     window.layer.addTo(map);
     map.fitBounds(window.layer.getBounds());
 
-    // 🔵 maintenant seulement, on peut choisir une commune
     pickNewCommune();
 }
 
@@ -167,7 +157,7 @@ function pickNewCommune() {
 
     if (!allFeatures.length) {
         document.getElementById('target').innerHTML =
-            "Aucune commune disponible pour ce canton.";
+            "Aucune commune disponible.";
         gameActive = false;
         return;
     }
@@ -178,8 +168,7 @@ function pickNewCommune() {
     document.getElementById('target').innerHTML =
         `Commune à trouver : <b>${p.NAME}</b>`;
 
-    hasClicked = false;
-
+    hasClicked = false;   // 🔵 autorise un seul clic par essai
     document.getElementById('new').disabled = true;
 }
 
@@ -234,7 +223,6 @@ function resetGame() {
     document.getElementById('new').innerHTML = "Nouvelle commune";
     document.getElementById('new').disabled = true;
 
-    // 🔵 on ne reconstruit pas la couche ici, on garde le même canton
     pickNewCommune();
 
     document.getElementById('best').innerHTML =
@@ -250,8 +238,9 @@ document.getElementById('new').addEventListener('click', () => {
     }
 });
 
-// 🔵 changement de canton : on reset et on reconstruit la couche
+// 🔵 changement de canton
 selectCanton.addEventListener("change", () => {
+
     if (blinkInterval) {
         clearInterval(blinkInterval);
         blinkInterval = null;
@@ -261,7 +250,7 @@ selectCanton.addEventListener("change", () => {
     attempts = 0;
     gameActive = true;
     hasClicked = false;
-    currentAttemptsLog = [];
+
     document.getElementById('info').innerHTML = "";
     document.getElementById('archive').innerHTML =
         '<h3>Historique des parties</h3>';
@@ -269,10 +258,10 @@ selectCanton.addEventListener("change", () => {
     document.getElementById('new').innerHTML = "Nouvelle commune";
     document.getElementById('new').disabled = true;
 
-    buildLayerForCurrentCanton();
+    buildLayer();
 });
 
-// 🔵 Chargement initial du GeoJSON puis première couche
+// 🔵 Chargement initial
 fetch('./data/GeoJSON_communes.geojson')
     .then(r => r.json())
     .then(geojson => {
@@ -281,5 +270,5 @@ fetch('./data/GeoJSON_communes.geojson')
         document.getElementById('best').innerHTML =
             `Meilleur score : <b>${bestScore}</b>`;
 
-        buildLayerForCurrentCanton();
+        buildLayer();
     });
