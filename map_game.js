@@ -44,7 +44,7 @@ function buildLayerForCurrentCanton() {
     // reset des features
     allFeatures = [];
 
-    const canton = selectCanton.value; // string
+    const canton = "1"; // string
     const featuresFiltrees = canton
         ? geojsonData.features.filter(f => f.properties.KANTONSNUM == canton)
         : geojsonData.features;
