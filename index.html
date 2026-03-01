@@ -33,7 +33,6 @@
 
 <ul class="topnav">
     <li><a href="index.html">Communes Game</a></li>
-	<li><a href="montagnes.html">Montagnes de plus de 4000 m</a></li>
     <li><a href="classement.html">Classement</a></li>
     <li><a href="cantons.html">Cantons</a></li>
     <li><a href="communes.html">Communes</a></li>
@@ -47,6 +46,39 @@
 
     <!-- 📌 Panneau latéral -->
     <div id="sidebar">
+
+        <!-- 🟦 Sélecteur de canton ajouté -->
+        <h3>Choisir un canton</h3>
+        <select id="selectCanton" style="width:100%; padding:5px; margin-bottom:15px;">
+            <option value="">Tous les cantons</option>
+            <option value="AG">Argovie</option>
+            <option value="AI">Appenzell RI</option>
+            <option value="AR">Appenzell RE</option>
+            <option value="BE">Berne</option>
+            <option value="BL">Bâle-Campagne</option>
+            <option value="BS">Bâle-Ville</option>
+            <option value="FR">Fribourg</option>
+            <option value="GE">Genève</option>
+            <option value="GL">Glaris</option>
+            <option value="GR">Grisons</option>
+            <option value="JU">Jura</option>
+            <option value="LU">Lucerne</option>
+            <option value="NE">Neuchâtel</option>
+            <option value="NW">Nidwald</option>
+            <option value="OW">Obwald</option>
+            <option value="SG">Saint-Gall</option>
+            <option value="SH">Schaffhouse</option>
+            <option value="SO">Soleure</option>
+            <option value="SZ">Schwytz</option>
+            <option value="TG">Thurgovie</option>
+            <option value="TI">Tessin</option>
+            <option value="UR">Uri</option>
+            <option value="VD">Vaud</option>
+            <option value="VS">Valais</option>
+            <option value="ZG">Zoug</option>
+            <option value="ZH">Zurich</option>
+        </select>
+
         <button id="new">Nouvelle commune</button>
 
         <h3>Historique des essais</h3>
@@ -57,7 +89,10 @@
     </div>
 
 </div>
-<div id="archive" style="margin-top:20px; padding:10px;"> <h3>Historique des parties</h3> </div>
+
+<div id="archive" style="margin-top:20px; padding:10px;">
+    <h3>Historique des parties</h3>
+</div>
 
 <!-- 🎯 Zone d’affichage de la commune cible -->
 <div id="target"

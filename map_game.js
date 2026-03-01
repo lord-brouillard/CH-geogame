@@ -14,6 +14,9 @@ let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
     : 0;
 
+// 🔵 Nouveau : récupération du select canton
+const selectCanton = document.getElementById("selectCanton");
+
 function distanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -32,188 +35,207 @@ const map = L.map('map', {
 
 L.control.zoom({ position: 'topright' }).addTo(map);
 
-fetch('./data/GeoJSON_communes.geojson')
-    .then(r => r.json())
-    .then(geojson => {
+function chargerCarte() {
 
-        const layer = L.geoJSON(geojson, {
-            style: {
-                color: '#000',
-                weight: 1,
-                fillOpacity: 0.2
-            },
+    allFeatures = []; // reset
 
-            onEachFeature: (feature, lyr) => {
-                allFeatures.push(lyr);
+    fetch('./data/GeoJSON_communes.geojson')
+        .then(r => r.json())
+        .then(geojson => {
 
-                lyr.on('mouseover', () => {
-                    if (!gameActive) return;
-                    lyr.setStyle({ weight: 3, color: 'blue' });
-                });
+            // 🔵 Nouveau : filtrage selon canton
+            const canton = selectCanton.value;
+            const communesFiltrees = {
+                type: "FeatureCollection",
+                features: canton
+                    ? geojson.features.filter(f => f.properties.KANTONSNAME === canton)
+                    : geojson.features
+            };
 
-                lyr.on('mouseout', () => {
-                    if (!gameActive) return;
-                    lyr.setStyle({ weight: 1, color: '#000' });
-                });
+            if (window.layer) map.removeLayer(window.layer);
 
-                lyr.on('click', () => {
+            window.layer = L.geoJSON(communesFiltrees, {
+                style: {
+                    color: '#000',
+                    weight: 1,
+                    fillOpacity: 0.2
+                },
 
-                    if (!gameActive) return;
-                    if (!correctFeature) return;
-                    if (hasClicked) return;
-                    hasClicked = true;
+                onEachFeature: (feature, lyr) => {
+                    allFeatures.push(lyr);
 
-                    document.getElementById('new').disabled = false;
-
-                    allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
-
-                    if (blinkInterval) {
-                        clearInterval(blinkInterval);
-                        blinkInterval = null;
-                        correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
-                    }
-
-                    lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
-
-                    const c1 = lyr.getBounds().getCenter();
-                    const c2 = correctFeature.getBounds().getCenter();
-                    const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
-
-                    let dist = Math.round(d);
-                    let pts = Math.max(0, 100 - dist);
-
-                    score += pts;
-                    attempts++;
-
-                    currentAttemptsLog.push({
-                        attempt: attempts,
-                        distance: d.toFixed(2),
-                        points: pts,
-                        total: score
+                    lyr.on('mouseover', () => {
+                        if (!gameActive) return;
+                        lyr.setStyle({ weight: 3, color: 'blue' });
                     });
 
-                    document.getElementById('info').innerHTML +=
-                        `<div style="margin-bottom:10px;">
-                            <b>Essai ${attempts}/${maxAttempts}</b><br>
-                            Distance : <b>${d.toFixed(2)} km</b><br>
-                            Points gagnés : <b>${pts}</b><br>
-                            Score total : <b>${score}</b>
-                         </div><hr>`;
+                    lyr.on('mouseout', () => {
+                        if (!gameActive) return;
+                        lyr.setStyle({ weight: 1, color: '#000' });
+                    });
 
-                    // 🔴 Clignotement à CHAQUE essai
-                    let visible = true;
-                    blinkInterval = setInterval(() => {
-                        correctFeature.setStyle({
-                            fillColor: visible ? 'red' : '',
-                            fillOpacity: visible ? 0.7 : 0.2
+                    lyr.on('click', () => {
+
+                        if (!gameActive) return;
+                        if (!correctFeature) return;
+                        if (hasClicked) return;
+                        hasClicked = true;
+
+                        document.getElementById('new').disabled = false;
+
+                        allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+
+                        if (blinkInterval) {
+                            clearInterval(blinkInterval);
+                            blinkInterval = null;
+                            correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
+                        }
+
+                        lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
+
+                        const c1 = lyr.getBounds().getCenter();
+                        const c2 = correctFeature.getBounds().getCenter();
+                        const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
+
+                        let dist = Math.round(d);
+                        let pts = Math.max(0, 100 - dist);
+
+                        score += pts;
+                        attempts++;
+
+                        currentAttemptsLog.push({
+                            attempt: attempts,
+                            distance: d.toFixed(2),
+                            points: pts,
+                            total: score
                         });
-                        visible = !visible;
-                    }, 500);
 
-                    if (attempts >= maxAttempts) {
-                        endGame();
-                        return;
-                    }
+                        document.getElementById('info').innerHTML +=
+                            `<div style="margin-bottom:10px;">
+                                <b>Essai ${attempts}/${maxAttempts}</b><br>
+                                Distance : <b>${d.toFixed(2)} km</b><br>
+                                Points gagnés : <b>${pts}</b><br>
+                                Score total : <b>${score}</b>
+                             </div><hr>`;
 
-                    hasClicked = false;
-                });
-            }
-        });
+                        let visible = true;
+                        blinkInterval = setInterval(() => {
+                            correctFeature.setStyle({
+                                fillColor: visible ? 'red' : '',
+                                fillOpacity: visible ? 0.7 : 0.2
+                            });
+                            visible = !visible;
+                        }, 500);
 
-        layer.addTo(map);
-        map.fitBounds(layer.getBounds());
+                        if (attempts >= maxAttempts) {
+                            endGame();
+                            return;
+                        }
 
-        function pickNewCommune() {
-
-            if (blinkInterval) {
-                clearInterval(blinkInterval);
-                blinkInterval = null;
-            }
-
-            allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
-
-            correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
-
-            const p = correctFeature.feature.properties;
-            document.getElementById('target').innerHTML =
-                `Commune à trouver : <b>${p.NAME}</b>`;
-
-            hasClicked = false;
-
-            document.getElementById('new').disabled = true;
-        }
-
-        function endGame() {
-            gameActive = false;
-
-            // ❗ Ne pas arrêter le clignotement ici → le dernier essai doit clignoter
-
-            if (score > bestScore) {
-                bestScore = score;
-                localStorage.setItem("bestScore", bestScore);
-            }
-
-            document.getElementById('target').innerHTML =
-                `🎉 Partie terminée ! Score final : <b>${score}</b>`;
-
-            document.getElementById('new').innerHTML = "Nouvelle partie";
-            document.getElementById('new').disabled = false;
-
-            document.getElementById('best').innerHTML =
-                `Meilleur score : <b>${bestScore}</b>`;
-
-            const p = correctFeature.feature.properties;
-            let html = `<div style="padding:10px; border:1px solid #ccc; margin-bottom:10px;">
-                            <b>Partie terminée</b> — ${new Date().toLocaleString()}<br>
-                            Commune cible : <b>${p.NAME}</b><br>
-                            Score final : <b>${score}</b><br><br>
-                            <u>Détails des essais :</u><br>`;
-
-            currentAttemptsLog.forEach(a => {
-                html += `Essai ${a.attempt} — Distance : ${a.distance} km — Points : ${a.points} — Total : ${a.total}<br>`;
+                        hasClicked = false;
+                    });
+                }
             });
 
-            html += `</div>`;
-
-            document.getElementById('archive').innerHTML += html;
-        }
-
-        function resetGame() {
-
-            // 🛑 Stopper le clignotement quand on lance une nouvelle partie
-            if (blinkInterval) {
-                clearInterval(blinkInterval);
-                blinkInterval = null;
-            }
-
-            score = 0;
-            attempts = 0;
-            gameActive = true;
-            hasClicked = false;
-
-            document.getElementById('info').innerHTML = "";
-            currentAttemptsLog = [];
-
-            document.getElementById('new').innerHTML = "Nouvelle commune";
-            document.getElementById('new').disabled = true;
+            window.layer.addTo(map);
+            map.fitBounds(window.layer.getBounds());
 
             pickNewCommune();
-
-            document.getElementById('best').innerHTML =
-                `Meilleur score : <b>${bestScore}</b>`;
-        }
-
-        pickNewCommune();
-
-        document.getElementById('best').innerHTML =
-            `Meilleur score : <b>${bestScore}</b>`;
-
-        document.getElementById('new').addEventListener('click', () => {
-            if (!gameActive) {
-                resetGame();
-            } else {
-                pickNewCommune();
-                document.getElementById('info').innerHTML = "";
-            }
         });
+}
+
+function pickNewCommune() {
+
+    if (blinkInterval) {
+        clearInterval(blinkInterval);
+        blinkInterval = null;
+    }
+
+    allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+
+    // 🔵 Nouveau : choisir seulement dans les communes filtrées
+    correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
+
+    const p = correctFeature.feature.properties;
+    document.getElementById('target').innerHTML =
+        `Commune à trouver : <b>${p.NAME}</b>`;
+
+    hasClicked = false;
+
+    document.getElementById('new').disabled = true;
+}
+
+function endGame() {
+    gameActive = false;
+
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("bestScore", bestScore);
+    }
+
+    document.getElementById('target').innerHTML =
+        `🎉 Partie terminée ! Score final : <b>${score}</b>`;
+
+    document.getElementById('new').innerHTML = "Nouvelle partie";
+    document.getElementById('new').disabled = false;
+
+    document.getElementById('best').innerHTML =
+        `Meilleur score : <b>${bestScore}</b>`;
+
+    const p = correctFeature.feature.properties;
+    let html = `<div style="padding:10px; border:1px solid #ccc; margin-bottom:10px;">
+                    <b>Partie terminée</b> — ${new Date().toLocaleString()}<br>
+                    Commune cible : <b>${p.NAME}</b><br>
+                    Score final : <b>${score}</b><br><br>
+                    <u>Détails des essais :</u><br>`;
+
+    currentAttemptsLog.forEach(a => {
+        html += `Essai ${a.attempt} — Distance : ${a.distance} km — Points : ${a.points} — Total : ${a.total}<br>`;
     });
+
+    html += `</div>`;
+
+    document.getElementById('archive').innerHTML += html;
+}
+
+function resetGame() {
+
+    if (blinkInterval) {
+        clearInterval(blinkInterval);
+        blinkInterval = null;
+    }
+
+    score = 0;
+    attempts = 0;
+    gameActive = true;
+    hasClicked = false;
+
+    document.getElementById('info').innerHTML = "";
+    currentAttemptsLog = [];
+
+    document.getElementById('new').innerHTML = "Nouvelle commune";
+    document.getElementById('new').disabled = true;
+
+    pickNewCommune();
+
+    document.getElementById('best').innerHTML =
+        `Meilleur score : <b>${bestScore}</b>`;
+}
+
+document.getElementById('new').addEventListener('click', () => {
+    if (!gameActive) {
+        resetGame();
+    } else {
+        pickNewCommune();
+        document.getElementById('info').innerHTML = "";
+    }
+});
+
+// 🔵 Nouveau : recharger la carte quand on change de canton
+selectCanton.addEventListener("change", () => {
+    resetGame();
+    chargerCarte();
+});
+
+// Chargement initial
+chargerCarte();
