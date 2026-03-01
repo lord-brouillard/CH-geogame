@@ -48,7 +48,7 @@ function chargerCarte() {
             const communesFiltrees = {
                 type: "FeatureCollection",
                 features: canton
-                    ? geojson.features.filter(f => f.properties.KANTONSNAME === canton)
+                    ? geojson.features.filter(f => f.properties.KANTONSNUM === canton)
                     : geojson.features
             };
 
