@@ -14,7 +14,7 @@ let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
     : 0;
 
-// 🔵 Nouveau : récupération du select canton
+// 🔵 Select canton (HTML)
 const selectCanton = document.getElementById("selectCanton");
 
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -35,113 +35,125 @@ const map = L.map('map', {
 
 L.control.zoom({ position: 'topright' }).addTo(map);
 
-function chargerCarte() {
+let geojsonData = null; // 🔵 on stocke le GeoJSON une fois
 
-    allFeatures = []; // reset
+// 🔵 construit la couche en fonction du canton sélectionné
+function buildLayerForCurrentCanton() {
+    if (!geojsonData) return;
 
-    fetch('./data/GeoJSON_communes.geojson')
-        .then(r => r.json())
-        .then(geojson => {
+    // reset des features
+    allFeatures = [];
 
-            // 🔵 Nouveau : filtrage selon canton
-            const canton = selectCanton.value;
-            const communesFiltrees = {
-                type: "FeatureCollection",
-                features: canton
-                    ? geojson.features.filter(f => f.properties.KANTONSNUM == canton)
-                    : geojson.features
-            };
+    const canton = selectCanton.value; // string
+    const featuresFiltrees = canton
+        ? geojsonData.features.filter(f => f.properties.KANTONSNUM == canton)
+        : geojsonData.features;
 
-            if (window.layer) map.removeLayer(window.layer);
+    if (window.layer) {
+        map.removeLayer(window.layer);
+    }
 
-            window.layer = L.geoJSON(communesFiltrees, {
-                style: {
-                    color: '#000',
-                    weight: 1,
-                    fillOpacity: 0.2
-                },
+    if (!featuresFiltrees.length) {
+        gameActive = false;
+        document.getElementById('target').innerHTML =
+            "Aucune commune trouvée pour ce canton.";
+        return;
+    }
 
-                onEachFeature: (feature, lyr) => {
-                    allFeatures.push(lyr);
+    window.layer = L.geoJSON(
+        {
+            type: "FeatureCollection",
+            features: featuresFiltrees
+        },
+        {
+            style: {
+                color: '#000',
+                weight: 1,
+                fillOpacity: 0.2
+            },
 
-                    lyr.on('mouseover', () => {
-                        if (!gameActive) return;
-                        lyr.setStyle({ weight: 3, color: 'blue' });
+            onEachFeature: (feature, lyr) => {
+                allFeatures.push(lyr);
+
+                lyr.on('mouseover', () => {
+                    if (!gameActive) return;
+                    lyr.setStyle({ weight: 3, color: 'blue' });
+                });
+
+                lyr.on('mouseout', () => {
+                    if (!gameActive) return;
+                    lyr.setStyle({ weight: 1, color: '#000' });
+                });
+
+                lyr.on('click', () => {
+
+                    if (!gameActive) return;
+                    if (!correctFeature) return;
+                    if (hasClicked) return;
+                    hasClicked = true;
+
+                    document.getElementById('new').disabled = false;
+
+                    allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
+
+                    if (blinkInterval) {
+                        clearInterval(blinkInterval);
+                        blinkInterval = null;
+                        correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
+                    }
+
+                    lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
+
+                    const c1 = lyr.getBounds().getCenter();
+                    const c2 = correctFeature.getBounds().getCenter();
+                    const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
+
+                    let dist = Math.round(d);
+                    let pts = Math.max(0, 100 - dist);
+
+                    score += pts;
+                    attempts++;
+
+                    currentAttemptsLog.push({
+                        attempt: attempts,
+                        distance: d.toFixed(2),
+                        points: pts,
+                        total: score
                     });
 
-                    lyr.on('mouseout', () => {
-                        if (!gameActive) return;
-                        lyr.setStyle({ weight: 1, color: '#000' });
-                    });
+                    document.getElementById('info').innerHTML +=
+                        `<div style="margin-bottom:10px;">
+                            <b>Essai ${attempts}/${maxAttempts}</b><br>
+                            Distance : <b>${d.toFixed(2)} km</b><br>
+                            Points gagnés : <b>${pts}</b><br>
+                            Score total : <b>${score}</b>
+                         </div><hr>`;
 
-                    lyr.on('click', () => {
-
-                        if (!gameActive) return;
-                        if (!correctFeature) return;
-                        if (hasClicked) return;
-                        hasClicked = true;
-
-                        document.getElementById('new').disabled = false;
-
-                        allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
-
-                        if (blinkInterval) {
-                            clearInterval(blinkInterval);
-                            blinkInterval = null;
-                            correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
-                        }
-
-                        lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
-
-                        const c1 = lyr.getBounds().getCenter();
-                        const c2 = correctFeature.getBounds().getCenter();
-                        const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
-
-                        let dist = Math.round(d);
-                        let pts = Math.max(0, 100 - dist);
-
-                        score += pts;
-                        attempts++;
-
-                        currentAttemptsLog.push({
-                            attempt: attempts,
-                            distance: d.toFixed(2),
-                            points: pts,
-                            total: score
+                    let visible = true;
+                    blinkInterval = setInterval(() => {
+                        correctFeature.setStyle({
+                            fillColor: visible ? 'red' : '',
+                            fillOpacity: visible ? 0.7 : 0.2
                         });
+                        visible = !visible;
+                    }, 500);
 
-                        document.getElementById('info').innerHTML +=
-                            `<div style="margin-bottom:10px;">
-                                <b>Essai ${attempts}/${maxAttempts}</b><br>
-                                Distance : <b>${d.toFixed(2)} km</b><br>
-                                Points gagnés : <b>${pts}</b><br>
-                                Score total : <b>${score}</b>
-                             </div><hr>`;
+                    if (attempts >= maxAttempts) {
+                        endGame();
+                        return;
+                    }
 
-                        let visible = true;
-                        blinkInterval = setInterval(() => {
-                            correctFeature.setStyle({
-                                fillColor: visible ? 'red' : '',
-                                fillOpacity: visible ? 0.7 : 0.2
-                            });
-                            visible = !visible;
-                        }, 500);
+                    hasClicked = false;
+                });
+            }
+        }
+    );
 
-                        if (attempts >= maxAttempts) {
-                            endGame();
-                            return;
-                        }
+    window.layer.addTo(map);
+    map.fitBounds(window.layer.getBounds());
 
-                        hasClicked = false;
-                    });
-                }
-            });
-
-            window.layer.addTo(map);
-            map.fitBounds(window.layer.getBounds());
-
-            pickNewCommune();
-        });
+    // 🔵 maintenant seulement, on peut choisir une commune
+    pickNewCommune();
 }
 
 function pickNewCommune() {
@@ -153,7 +165,13 @@ function pickNewCommune() {
 
     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
-    // 🔵 Nouveau : choisir seulement dans les communes filtrées
+    if (!allFeatures.length) {
+        document.getElementById('target').innerHTML =
+            "Aucune commune disponible pour ce canton.";
+        gameActive = false;
+        return;
+    }
+
     correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
 
     const p = correctFeature.feature.properties;
@@ -216,6 +234,7 @@ function resetGame() {
     document.getElementById('new').innerHTML = "Nouvelle commune";
     document.getElementById('new').disabled = true;
 
+    // 🔵 on ne reconstruit pas la couche ici, on garde le même canton
     pickNewCommune();
 
     document.getElementById('best').innerHTML =
@@ -231,11 +250,36 @@ document.getElementById('new').addEventListener('click', () => {
     }
 });
 
-// 🔵 Nouveau : recharger la carte quand on change de canton
+// 🔵 changement de canton : on reset et on reconstruit la couche
 selectCanton.addEventListener("change", () => {
-    resetGame();
-    chargerCarte();
+    if (blinkInterval) {
+        clearInterval(blinkInterval);
+        blinkInterval = null;
+    }
+
+    score = 0;
+    attempts = 0;
+    gameActive = true;
+    hasClicked = false;
+    currentAttemptsLog = [];
+    document.getElementById('info').innerHTML = "";
+    document.getElementById('archive').innerHTML =
+        '<h3>Historique des parties</h3>';
+
+    document.getElementById('new').innerHTML = "Nouvelle commune";
+    document.getElementById('new').disabled = true;
+
+    buildLayerForCurrentCanton();
 });
 
-// Chargement initial
-chargerCarte();
+// 🔵 Chargement initial du GeoJSON puis première couche
+fetch('./data/GeoJSON_communes.geojson')
+    .then(r => r.json())
+    .then(geojson => {
+        geojsonData = geojson;
+
+        document.getElementById('best').innerHTML =
+            `Meilleur score : <b>${bestScore}</b>`;
+
+        buildLayerForCurrentCanton();
+    });
