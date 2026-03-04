@@ -70,5 +70,14 @@ footer {
 #info div {
     margin-bottom: 10px;
 }
-
+.suggestions div {
+    padding: 5px 10px;
+    cursor: pointer;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+.suggestions div:hover {
+    background: #e8f0fe;
+}
 
