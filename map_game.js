@@ -173,6 +173,7 @@ function pickNewCommune() {
         `Commune à trouver : <b>${p.NAME}</b>`;
 
     hasClicked = false;   // 🔵 autorise un seul clic par essai
+    document.getElementById('new').disabled = true;  // 🔴 désactive jusqu'au prochain clic
 }
 
 function endGame() {
@@ -238,6 +239,7 @@ document.getElementById('new').addEventListener('click', () => {
     } else {
         pickNewCommune();
         document.getElementById('info').innerHTML = "";
+        document.getElementById('new').disabled = true;
     }
 });
 
