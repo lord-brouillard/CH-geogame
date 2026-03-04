@@ -52,6 +52,7 @@ footer {
 	width: 100%;
 	background: white;
 	flex: 1;
+}
 
 #container {
     display: flex;
