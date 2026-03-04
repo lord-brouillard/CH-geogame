@@ -136,15 +136,11 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
-                    // 🔥 Clignotement de la bonne montagne
-                    let visible = true;
-                    blinkInterval = setInterval(() => {
-                        correctFeature.setStyle({
-                            fillColor: visible ? 'red' : '#ddd',
-                            fillOpacity: visible ? 0.9 : 0.6
-                        });
-                        visible = !visible;
-                    }, 500);
+                    // ✅ Bonne montagne en vert fixe
+                    correctFeature.setStyle({
+                        fillColor: 'green',
+                        fillOpacity: 0.9
+                    });
 
                     if (attempts >= maxAttempts) {
                         endGame();
