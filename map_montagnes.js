@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded", function () {
+
 let allFeatures = [];
 let correctFeature = null;
 let blinkInterval = null;
@@ -254,3 +256,5 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             }
         });
     });
+
+}); // DOMContentLoaded
