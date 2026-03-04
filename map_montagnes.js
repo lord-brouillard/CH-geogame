@@ -175,9 +175,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
 
             const p = correctFeature.feature.properties;
 
-            document.getElementById('target').innerHTML =
-                `Montagne à trouver : <b>${p.NAME}</b>`;
-
             document.getElementById('randomNameText').textContent = p.NAME;
 
             hasClicked = false;
@@ -195,8 +192,8 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                 localStorage.setItem("bestScore", bestScore);
             }
 
-            document.getElementById('target').innerHTML =
-                `🎉 Partie terminée ! Score final : <b>${score}</b>`;
+            document.getElementById('randomNameText').textContent =
+                `🎉 Partie terminée ! Score : ${score}`;
 
             document.getElementById('new').innerHTML = "Nouvelle partie";
             document.getElementById('new').disabled = false;
