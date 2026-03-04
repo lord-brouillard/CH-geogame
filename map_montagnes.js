@@ -136,19 +136,15 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
-                    // ✅ Bonne montagne = vert fixe, mauvaise = clignotement rouge
-                    if (dist === 0) {
-                        lyr.setStyle({ fillColor: 'green', fillOpacity: 0.9 });
-                    } else {
-                        let visible = true;
-                        blinkInterval = setInterval(() => {
-                            correctFeature.setStyle({
-                                fillColor: visible ? 'red' : '#ddd',
-                                fillOpacity: visible ? 0.9 : 0.6
-                            });
-                            visible = !visible;
-                        }, 500);
-                    }
+                    // 🔥 Clignotement de la bonne montagne
+                    let visible = true;
+                    blinkInterval = setInterval(() => {
+                        correctFeature.setStyle({
+                            fillColor: visible ? 'red' : '#ddd',
+                            fillOpacity: visible ? 0.9 : 0.6
+                        });
+                        visible = !visible;
+                    }, 500);
 
                     if (attempts >= maxAttempts) {
                         endGame();
@@ -182,7 +178,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             document.getElementById('randomNameText').textContent = p.NAME;
 
             hasClicked = false;
-            document.getElementById('new').disabled = true;
         }
 
         // 🔥 Toutes les features sont maintenant chargées → premier tirage
