@@ -1,5 +1,3 @@
-document.addEventListener("DOMContentLoaded", function () {
-
 let allFeatures = [];
 let correctFeature = null;
 let blinkInterval = null;
@@ -180,7 +178,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             document.getElementById('randomNameText').textContent = p.NAME;
 
             hasClicked = false;
-            document.getElementById('new').disabled = true;
         }
 
         // 🔥 Toutes les features sont maintenant chargées → premier tirage
@@ -256,5 +253,3 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             }
         });
     });
-
-}); // DOMContentLoaded
