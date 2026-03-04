@@ -122,14 +122,18 @@ function buildLayer() {
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
-                    let visible = true;
-                    blinkInterval = setInterval(() => {
-                        correctFeature.setStyle({
-                            fillColor: visible ? 'red' : '',
-                            fillOpacity: visible ? 0.7 : 0.2
-                        });
-                        visible = !visible;
-                    }, 500);
+                    if (dist === 0) {
+                        lyr.setStyle({ fillColor: 'green', fillOpacity: 0.9 });
+                    } else {
+                        let visible = true;
+                        blinkInterval = setInterval(() => {
+                            correctFeature.setStyle({
+                                fillColor: visible ? 'red' : '',
+                                fillOpacity: visible ? 0.7 : 0.2
+                            });
+                            visible = !visible;
+                        }, 500);
+                    }
 
                     if (attempts >= maxAttempts) {
                         endGame();
@@ -169,7 +173,6 @@ function pickNewCommune() {
         `Commune à trouver : <b>${p.NAME}</b>`;
 
     hasClicked = false;   // 🔵 autorise un seul clic par essai
-    document.getElementById('new').disabled = true;
 }
 
 function endGame() {
