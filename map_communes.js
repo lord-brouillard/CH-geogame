@@ -1,23 +1,40 @@
-let allFeatures = []; // stockage des features
+let allFeatures = [];
 
 const map = L.map('map', {
     zoomControl: false,
     attributionControl: false
 });
 
-// Contrôle zoom
 L.control.zoom({
     position: 'topright'
 }).addTo(map);
 
-// ⚠️ AUCUNE couche de tuiles ici → pas d’OpenStreetMap
+let geojsonData = null;
 
-// Chargement du GeoJSON
-fetch('./data/GeoJSON_communes.geojson')
-    .then(response => response.json())
-    .then(geojson => {
+const selectCanton = document.getElementById("selectCanton");
 
-        const layer = L.geoJSON(geojson, {
+// 🔵 Construit la couche filtrée selon le canton sélectionné
+function buildLayer() {
+    allFeatures = [];
+
+    const canton = selectCanton.value;
+
+    const filtered = canton
+        ? geojsonData.features.filter(f => f.properties.KANTONSNUM == canton)
+        : geojsonData.features;
+
+    if (window.layer) map.removeLayer(window.layer);
+
+    const info = document.getElementById('info');
+
+    if (!filtered.length) {
+        if (info) info.innerHTML = "Aucune commune trouvée pour ce canton.";
+        return;
+    }
+
+    window.layer = L.geoJSON(
+        { type: "FeatureCollection", features: filtered },
+        {
             style: {
                 color: '#000',
                 weight: 1,
@@ -38,7 +55,6 @@ fetch('./data/GeoJSON_communes.geojson')
                 lyr.bindPopup(html);
 
                 lyr.on('click', () => {
-                    const info = document.getElementById('info');
                     if (info) info.innerHTML = html;
                 });
 
@@ -50,10 +66,24 @@ fetch('./data/GeoJSON_communes.geojson')
                     lyr.setStyle({ weight: 1, color: '#000' });
                 });
             }
-        });
+        }
+    );
 
-        layer.addTo(map);
+    window.layer.addTo(map);
+    map.fitBounds(window.layer.getBounds());
+}
 
-        // Zoom automatique sur le GeoJSON
-        map.fitBounds(layer.getBounds());
+// 🔵 Changement de canton
+selectCanton.addEventListener("change", () => {
+    const info = document.getElementById('info');
+    if (info) info.innerHTML = "";
+    buildLayer();
+});
+
+// 🔵 Chargement initial
+fetch('./data/GeoJSON_communes.geojson')
+    .then(response => response.json())
+    .then(geojson => {
+        geojsonData = geojson;
+        buildLayer();
     });
