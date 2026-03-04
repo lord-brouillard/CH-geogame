@@ -237,9 +237,11 @@ document.getElementById('new').addEventListener('click', () => {
     if (!gameActive) {
         resetGame();
     } else {
-        pickNewCommune();
+        // Le bouton n'est accessible que si hasClicked === true
+        // pickNewCommune() remet hasClicked = false et disabled = true
+        if (!hasClicked) return;
         document.getElementById('info').innerHTML = "";
-        document.getElementById('new').disabled = true;
+        pickNewCommune();
     }
 });
 
