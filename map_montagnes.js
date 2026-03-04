@@ -150,17 +150,12 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                         endGame();
                         return;
                     }
-
-                    hasClicked = false;
                 });
             }
         });
 
         layer.addTo(map);
         map.fitBounds(layer.getBounds());
-
-        // 🔥 Toutes les features sont maintenant chargées
-        pickNewMontagne();
 
         function pickNewMontagne() {
 
@@ -188,6 +183,9 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             hasClicked = false;
             document.getElementById('new').disabled = true;
         }
+
+        // 🔥 Toutes les features sont maintenant chargées → premier tirage
+        pickNewMontagne();
 
         function endGame() {
             gameActive = false;
