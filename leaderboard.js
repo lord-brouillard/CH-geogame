@@ -1,5 +1,5 @@
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy }
+import { getFirestore, collection, addDoc, getDocs }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -21,7 +21,8 @@ try {
 
 const TOP_N = 10;
 
-export async function loadLeaderboard() {
+// ── Charge et affiche le classement filtré par canton ─────────
+export async function loadLeaderboard(cantonFilter = '') {
     const container = document.getElementById('leaderboard-list');
     if (!container) return;
 
@@ -33,7 +34,6 @@ export async function loadLeaderboard() {
     }
 
     try {
-        // Récupère tous les scores
         const snapshot = await getDocs(collection(db, "scores"));
 
         if (snapshot.empty) {
@@ -41,20 +41,28 @@ export async function loadLeaderboard() {
             return;
         }
 
-        // 🔵 Garde uniquement le meilleur score par joueur
+        // 🔵 Filtre par canton si sélectionné
         const best = {};
         snapshot.forEach(doc => {
-            const d = doc.data();
-            const key = d.pseudo.toLowerCase(); // insensible à la casse
+            const d   = doc.data();
+            const canton = d.canton || 'Tous les cantons';
+
+            if (cantonFilter && canton !== cantonFilter) return;
+
+            const key = d.pseudo.toLowerCase();
             if (!best[key] || d.score > best[key].score) {
                 best[key] = { pseudo: d.pseudo, score: d.score, date: d.date };
             }
         });
 
-        // Trie par score décroissant et prend le top N
         const sorted = Object.values(best)
             .sort((a, b) => b.score - a.score)
             .slice(0, TOP_N);
+
+        if (!sorted.length) {
+            container.innerHTML = `<div class="lb-empty">Aucun score pour ce canton.</div>`;
+            return;
+        }
 
         let html = '';
         sorted.forEach((d, i) => {
@@ -77,12 +85,14 @@ export async function loadLeaderboard() {
     }
 }
 
-export async function saveScore(pseudo, score) {
+// ── Sauvegarde un score avec le canton ────────────────────────
+export async function saveScore(pseudo, score, canton = 'Tous les cantons') {
     if (!db) return;
     try {
         await addDoc(collection(db, "scores"), {
-            pseudo, score, date: new Date().toISOString()
+            pseudo, score, canton, date: new Date().toISOString()
         });
+        console.log("Score sauvegardé ✅");
     } catch(e) {
         console.warn("Erreur sauvegarde :", e);
     }
@@ -94,4 +104,4 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-document.addEventListener('DOMContentLoaded', loadLeaderboard);
+document.addEventListener('DOMContentLoaded', () => loadLeaderboard());

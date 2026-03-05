@@ -334,6 +334,39 @@
             </div>
         </header>
 
+        <!-- Filtre par canton -->
+        <div style="margin-bottom: 28px;">
+            <select id="filterCanton" style="width:100%; padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; letter-spacing:0.06em; border:1.5px solid var(--dark); border-radius:2px; background:white; color:var(--dark); cursor:pointer; appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%231A1A1A%22 stroke-width=%221.8%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
+                <option value="">🇨🇭 Tous les cantons</option>
+                <option value="Zurich">Zurich</option>
+                <option value="Berne">Berne</option>
+                <option value="Lucerne">Lucerne</option>
+                <option value="Uri">Uri</option>
+                <option value="Schwytz">Schwytz</option>
+                <option value="Obwald">Obwald</option>
+                <option value="Nidwald">Nidwald</option>
+                <option value="Glaris">Glaris</option>
+                <option value="Zoug">Zoug</option>
+                <option value="Fribourg">Fribourg</option>
+                <option value="Soleure">Soleure</option>
+                <option value="Bâle-Ville">Bâle-Ville</option>
+                <option value="Bâle-Campagne">Bâle-Campagne</option>
+                <option value="Schaffhouse">Schaffhouse</option>
+                <option value="Appenzell RE">Appenzell RE</option>
+                <option value="Appenzell RI">Appenzell RI</option>
+                <option value="Saint-Gall">Saint-Gall</option>
+                <option value="Grisons">Grisons</option>
+                <option value="Argovie">Argovie</option>
+                <option value="Thurgovie">Thurgovie</option>
+                <option value="Tessin">Tessin</option>
+                <option value="Vaud">Vaud</option>
+                <option value="Valais">Valais</option>
+                <option value="Neuchâtel">Neuchâtel</option>
+                <option value="Genève">Genève</option>
+                <option value="Jura">Jura</option>
+            </select>
+        </div>
+
         <!-- Stats bar -->
         <div class="stats-bar">
             <div class="stat">
@@ -384,23 +417,27 @@
         } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         // ── Charge les stats (total joueurs, best, avg) ──────────
-        async function loadStats() {
+        async function loadStats(cantonFilter = '') {
             try {
                 const all = await getDocs(collection(db, "scores"));
-
                 if (all.empty) return;
 
-                // 🔵 Meilleur score par joueur (même logique que leaderboard)
                 const best = {};
                 all.forEach(doc => {
-                    const d   = doc.data();
+                    const d      = doc.data();
+                    const canton = d.canton || 'Tous les cantons';
+                    if (cantonFilter && canton !== cantonFilter) return;
                     const key = d.pseudo.toLowerCase();
-                    if (!best[key] || d.score > best[key]) {
-                        best[key] = d.score;
-                    }
+                    if (!best[key] || d.score > best[key]) best[key] = d.score;
                 });
 
                 const uniqueScores = Object.values(best);
+                if (!uniqueScores.length) {
+                    document.getElementById('stat-players').textContent = '0';
+                    document.getElementById('stat-best').textContent    = '—';
+                    document.getElementById('stat-avg').textContent     = '—';
+                    return;
+                }
 
                 document.getElementById('stat-players').textContent = uniqueScores.length;
                 document.getElementById('stat-best').textContent    = Math.max(...uniqueScores);
@@ -411,13 +448,19 @@
         }
 
         // ── Init ─────────────────────────────────────────────────
-        loadLeaderboard();
-        loadStats();
+        const filterCanton = document.getElementById('filterCanton');
 
-        document.getElementById('btn-refresh').addEventListener('click', () => {
-            loadLeaderboard();
-            loadStats();
-        });
+        function refresh() {
+            const canton = filterCanton.value;
+            loadLeaderboard(canton);
+            loadStats(canton);
+        }
+
+        refresh();
+
+        filterCanton.addEventListener('change', refresh);
+
+        document.getElementById('btn-refresh').addEventListener('click', refresh);
     </script>
 </body>
 </html>

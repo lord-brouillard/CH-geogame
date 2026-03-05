@@ -1,37 +1,4 @@
-// ── Firebase (sauvegarde scores) ────────────────────────────
-import { initializeApp }                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey:            "AIzaSyCj8F4ABo02jZDbE0VmOr62RgmRhYTi1XE",
-    authDomain:        "ch-geogame.firebaseapp.com",
-    projectId:         "ch-geogame",
-    storageBucket:     "ch-geogame.firebasestorage.app",
-    messagingSenderId: "173593614352",
-    appId:             "1:173593614352:web:7e4109bab775d6d7f31295"
-};
-
-let db = null;
-try {
-    const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-} catch(e) {
-    console.warn("Firebase non disponible, scores non sauvegardés.", e);
-}
-
-async function saveScore(pseudo, score) {
-    if (!db) return;
-    try {
-        await addDoc(collection(db, "scores"), {
-            pseudo: pseudo,
-            score:  score,
-            date:   new Date().toISOString()
-        });
-        console.log("Score sauvegardé ✅");
-    } catch(e) {
-        console.warn("Erreur sauvegarde score :", e);
-    }
-}
+import { saveScore } from './leaderboard.js';
 
 let allFeatures = [];
 let correctFeature = null;
@@ -259,8 +226,12 @@ async function endGame() {
         localStorage.setItem("bestScore", bestScore);
     }
 
-    // 🔵 Sauvegarde le score dans Firebase
-    await saveScore(pseudo, score);
+    // 🔵 Sauvegarde le score dans Firebase avec le canton
+    const cantonVal = selectCanton.value;
+    const cantonLabel = cantonVal
+        ? selectCanton.options[selectCanton.selectedIndex].text
+        : 'Tous les cantons';
+    await saveScore(pseudo, score, cantonLabel);
 
     document.getElementById('target').innerHTML =
         `🎉 Partie terminée ! Score final : <b>${score}</b>`;
