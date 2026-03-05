@@ -1,5 +1,5 @@
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit }
+import { getFirestore, collection, addDoc, getDocs, query, orderBy }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -33,19 +33,33 @@ export async function loadLeaderboard() {
     }
 
     try {
-        const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(TOP_N));
-        const snapshot = await getDocs(q);
+        // Récupère tous les scores
+        const snapshot = await getDocs(collection(db, "scores"));
 
         if (snapshot.empty) {
             container.innerHTML = `<div class="lb-empty">Aucun score enregistré pour l'instant.</div>`;
             return;
         }
 
-        let html = '';
-        let rank = 1;
+        // 🔵 Garde uniquement le meilleur score par joueur
+        const best = {};
         snapshot.forEach(doc => {
             const d = doc.data();
-            const date = d.date ? new Date(d.date).toLocaleDateString('fr-CH') : '—';
+            const key = d.pseudo.toLowerCase(); // insensible à la casse
+            if (!best[key] || d.score > best[key].score) {
+                best[key] = { pseudo: d.pseudo, score: d.score, date: d.date };
+            }
+        });
+
+        // Trie par score décroissant et prend le top N
+        const sorted = Object.values(best)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, TOP_N);
+
+        let html = '';
+        sorted.forEach((d, i) => {
+            const rank  = i + 1;
+            const date  = d.date ? new Date(d.date).toLocaleDateString('fr-CH') : '—';
             const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
             html += `
             <div class="lb-row ${rank <= 3 ? 'lb-top' : ''}" style="--rank:${rank}">
@@ -54,7 +68,6 @@ export async function loadLeaderboard() {
                 <span class="lb-score">${d.score} pts</span>
                 <span class="lb-date">${date}</span>
             </div>`;
-            rank++;
         });
         container.innerHTML = html;
 
