@@ -22,7 +22,7 @@ try {
 const TOP_N = 10;
 
 // ── Charge et affiche le classement filtré par canton ─────────
-export async function loadLeaderboard(cantonFilter = '') {
+export async function loadLeaderboard(cantonFilter = 'Toute la Suisse') {
     const container = document.getElementById('leaderboard-list');
     if (!container) return;
 
@@ -47,7 +47,7 @@ export async function loadLeaderboard(cantonFilter = '') {
         const best = {};
         snapshot.forEach(doc => {
             const d      = doc.data();
-            const canton = d.canton || 'Tous les cantons';
+            const canton = d.canton || 'Toute la Suisse';
 
             if (cantonFilter) {
                 // Filtre strict : seulement ce canton
@@ -91,7 +91,7 @@ export async function loadLeaderboard(cantonFilter = '') {
 }
 
 // ── Sauvegarde un score avec le canton ────────────────────────
-export async function saveScore(pseudo, score, canton = 'Tous les cantons') {
+export async function saveScore(pseudo, score, canton = 'Toute la Suisse') {
     if (!db) return;
     try {
         await addDoc(collection(db, "scores"), {
@@ -109,4 +109,4 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-document.addEventListener('DOMContentLoaded', () => loadLeaderboard());
+document.addEventListener('DOMContentLoaded', () => loadLeaderboard('Toute la Suisse'));

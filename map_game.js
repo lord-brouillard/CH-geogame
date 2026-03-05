@@ -230,7 +230,7 @@ async function endGame() {
     const cantonVal = selectCanton.value;
     const cantonLabel = cantonVal
         ? selectCanton.options[selectCanton.selectedIndex].text
-        : 'Tous les cantons';
+        : 'Toute la Suisse';
     await saveScore(pseudo, score, cantonLabel);
 
     document.getElementById('target').innerHTML =
