@@ -15,10 +15,22 @@ let bestScore = localStorage.getItem("bestScore")
     : 0;
 
 let pseudo = "";
-while (!pseudo || pseudo.trim() === "") {
-    pseudo = window.prompt("Entrez votre pseudonyme pour commencer :") || "";
-}
-pseudo = pseudo.trim();
+
+document.getElementById('startBtn').addEventListener('click', () => {
+    const val = document.getElementById('pseudoInput').value.trim();
+    if (!val) return;
+    pseudo = val;
+    document.getElementById('startScreen').style.display = 'none';
+    
+    // Lance le jeu ici
+    fetch('./data/GeoJSON_communes.geojson')
+        .then(r => r.json())
+        .then(geojson => {
+            geojsonData = geojson;
+            document.getElementById('best').innerHTML = `Meilleur score : <b>${bestScore}</b>`;
+            buildLayer();
+        });
+});
 
 const selectCanton = document.getElementById("selectCanton");
 

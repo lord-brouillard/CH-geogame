@@ -38,7 +38,18 @@
     <li><a href="cantons.html">Cantons</a></li>
     <li><a href="communes.html">Communes</a></li>
 </ul>
-
+<!-- Dans ton HTML, avant la carte -->
+<div id="startScreen" style="position:fixed; top:0; left:0; width:100%; height:100%; 
+     background:rgba(0,0,0,0.7); z-index:9999; display:flex; 
+     align-items:center; justify-content:center;">
+  <div style="background:white; padding:30px; border-radius:10px; text-align:center;">
+    <h2>Bienvenue !</h2>
+    <input id="pseudoInput" type="text" placeholder="Votre pseudonyme" 
+           style="padding:8px; font-size:16px;" />
+    <br><br>
+    <button id="startBtn" style="padding:10px 20px; font-size:16px;">Jouer</button>
+  </div>
+</div>
 <!-- 🟦 CONTENEUR PRINCIPAL : CARTE + PANNEAU DROIT -->
 <div id="container">
 
