@@ -387,14 +387,24 @@
         async function loadStats() {
             try {
                 const all = await getDocs(collection(db, "scores"));
-                const scores = [];
-                all.forEach(doc => scores.push(doc.data().score));
 
-                if (!scores.length) return;
+                if (all.empty) return;
 
-                document.getElementById('stat-players').textContent = scores.length;
-                document.getElementById('stat-best').textContent    = Math.max(...scores);
-                document.getElementById('stat-avg').textContent     = Math.round(scores.reduce((a,b) => a+b, 0) / scores.length);
+                // 🔵 Meilleur score par joueur (même logique que leaderboard)
+                const best = {};
+                all.forEach(doc => {
+                    const d   = doc.data();
+                    const key = d.pseudo.toLowerCase();
+                    if (!best[key] || d.score > best[key]) {
+                        best[key] = d.score;
+                    }
+                });
+
+                const uniqueScores = Object.values(best);
+
+                document.getElementById('stat-players').textContent = uniqueScores.length;
+                document.getElementById('stat-best').textContent    = Math.max(...uniqueScores);
+                document.getElementById('stat-avg').textContent     = Math.round(uniqueScores.reduce((a,b) => a+b, 0) / uniqueScores.length);
             } catch(e) {
                 console.error(e);
             }
