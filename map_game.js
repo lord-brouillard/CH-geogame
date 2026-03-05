@@ -1,3 +1,5 @@
+import { saveScore } from './leaderboard.js';
+
 let allFeatures = [];
 let correctFeature = null;
 let blinkInterval = null;
@@ -194,13 +196,16 @@ function pickNewCommune() {
     document.getElementById('new').disabled = true;  // 🔴 désactive jusqu'au prochain clic
 }
 
-function endGame() {
+async function endGame() {
     gameActive = false;
 
     if (score > bestScore) {
         bestScore = score;
         localStorage.setItem("bestScore", bestScore);
     }
+
+    // 🔵 Sauvegarde le score dans Firebase
+    await saveScore(pseudo, score);
 
     document.getElementById('target').innerHTML =
         `🎉 Partie terminée ! Score final : <b>${score}</b>`;
