@@ -14,6 +14,12 @@ let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
     : 0;
 
+let pseudo = "";
+while (!pseudo || pseudo.trim() === "") {
+    pseudo = window.prompt("Entrez votre pseudonyme pour commencer :") || "";
+}
+pseudo = pseudo.trim();
+
 const selectCanton = document.getElementById("selectCanton");
 
 function distanceKm(lat1, lon1, lat2, lon2) {
@@ -196,6 +202,7 @@ function endGame() {
     const p = correctFeature.feature.properties;
     let html = `<div style="padding:10px; border:1px solid #ccc; margin-bottom:10px;">
                     <b>Partie terminée</b> — ${new Date().toLocaleString()}<br>
+                    Joueur : <b>${pseudo}</b><br>
                     Commune cible : <b>${p.NAME}</b><br>
                     Score final : <b>${score}</b><br><br>
                     <u>Détails des essais :</u><br>`;
