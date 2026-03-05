@@ -108,9 +108,6 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                         });
                     }
 
-                    // montagne choisie par le joueur
-                    lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.9 });
-
                     const c1 = lyr.getLatLng();
                     const c2 = correctFeature.getLatLng();
                     const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
@@ -136,11 +133,23 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                             Score total : <b>${score}</b>
                          </div><hr>`;
 
-                    // ✅ Bonne montagne en vert fixe
-                    correctFeature.setStyle({
-                        fillColor: 'green',
-                        fillOpacity: 0.9
-                    });
+                    if (dist === 0) {
+                        // ✅ Bonne montagne : vert fixe
+                        correctFeature.setStyle({ fillColor: 'green', fillOpacity: 0.9 });
+                    } else {
+                        // ❌ Mauvaise montagne : orange fixe pour le clic du joueur
+                        lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.9 });
+
+                        // La bonne montagne clignote en rouge
+                        let visible = true;
+                        blinkInterval = setInterval(() => {
+                            correctFeature.setStyle({
+                                fillColor: visible ? 'red' : '#ddd',
+                                fillOpacity: visible ? 0.9 : 0.6
+                            });
+                            visible = !visible;
+                        }, 500);
+                    }
 
                     if (attempts >= maxAttempts) {
                         endGame();
