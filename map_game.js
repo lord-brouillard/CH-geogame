@@ -16,15 +16,9 @@ let bestScore = localStorage.getItem("bestScore")
     ? parseInt(localStorage.getItem("bestScore"))
     : 0;
 
-let pseudo = "";
+let pseudo = localStorage.getItem("pseudo") || "";
 
-document.getElementById('startBtn').addEventListener('click', () => {
-    const val = document.getElementById('pseudoInput').value.trim();
-    if (!val) return;
-    pseudo = val;
-    document.getElementById('startScreen').style.display = 'none';
-    
-    // Lance le jeu ici
+function startGame() {
     fetch('./data/GeoJSON_communes.geojson')
         .then(r => r.json())
         .then(geojson => {
@@ -32,6 +26,21 @@ document.getElementById('startBtn').addEventListener('click', () => {
             document.getElementById('best').innerHTML = `Meilleur score : <b>${bestScore}</b>`;
             buildLayer();
         });
+}
+
+// 🔵 Si pseudo déjà connu → on lance directement sans afficher l'écran
+if (pseudo) {
+    document.getElementById('startScreen').style.display = 'none';
+    startGame();
+}
+
+document.getElementById('startBtn').addEventListener('click', () => {
+    const val = document.getElementById('pseudoInput').value.trim();
+    if (!val) return;
+    pseudo = val;
+    localStorage.setItem("pseudo", pseudo); // 💾 Mémorise le pseudo
+    document.getElementById('startScreen').style.display = 'none';
+    startGame();
 });
 
 const selectCanton = document.getElementById("selectCanton");
