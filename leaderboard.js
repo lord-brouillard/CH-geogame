@@ -1,33 +1,39 @@
-// ============================================================
-//  leaderboard.js  —  Chargement et affichage du classement
-// ============================================================
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-import { db } from './firebase-config.js';
-import {
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    orderBy,
-    limit
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const firebaseConfig = {
+    apiKey:            "AIzaSyCj8F4ABo02jZDbE0VmOr62RgmRhYTi1XE",
+    authDomain:        "ch-geogame.firebaseapp.com",
+    projectId:         "ch-geogame",
+    storageBucket:     "ch-geogame.firebasestorage.app",
+    messagingSenderId: "173593614352",
+    appId:             "1:173593614352:web:7e4109bab775d6d7f31295"
+};
 
-const TOP_N = 10; // Nombre de joueurs affichés
+let db = null;
+try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+} catch(e) {
+    console.warn("Firebase non disponible", e);
+}
 
-// ── Charge et affiche le classement ──────────────────────────
+const TOP_N = 10;
+
 export async function loadLeaderboard() {
     const container = document.getElementById('leaderboard-list');
     if (!container) return;
 
     container.innerHTML = `<div class="lb-loading">Chargement…</div>`;
 
-    try {
-        const q = query(
-            collection(db, "scores"),
-            orderBy("score", "desc"),
-            limit(TOP_N)
-        );
+    if (!db) {
+        container.innerHTML = `<div class="lb-error">Firebase non configuré.</div>`;
+        return;
+    }
 
+    try {
+        const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(TOP_N));
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
@@ -36,13 +42,11 @@ export async function loadLeaderboard() {
         }
 
         let html = '';
-        let rank  = 1;
-
+        let rank = 1;
         snapshot.forEach(doc => {
-            const d    = doc.data();
+            const d = doc.data();
             const date = d.date ? new Date(d.date).toLocaleDateString('fr-CH') : '—';
             const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-
             html += `
             <div class="lb-row ${rank <= 3 ? 'lb-top' : ''}" style="--rank:${rank}">
                 <span class="lb-rank">${medal}</span>
@@ -52,7 +56,6 @@ export async function loadLeaderboard() {
             </div>`;
             rank++;
         });
-
         container.innerHTML = html;
 
     } catch (err) {
@@ -61,28 +64,21 @@ export async function loadLeaderboard() {
     }
 }
 
-// ── Sauvegarde un score (appelé depuis map_game.js) ───────────
 export async function saveScore(pseudo, score) {
+    if (!db) return;
     try {
         await addDoc(collection(db, "scores"), {
-            pseudo: pseudo,
-            score:  score,
-            date:   new Date().toISOString()
+            pseudo, score, date: new Date().toISOString()
         });
-        console.log('Score sauvegardé ✅');
-    } catch (err) {
-        console.error('Erreur sauvegarde score :', err);
+    } catch(e) {
+        console.warn("Erreur sauvegarde :", e);
     }
 }
 
-// ── Utilitaire XSS ───────────────────────────────────────────
 function escapeHtml(str) {
     return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// ── Chargement automatique si on est sur la page classement ──
 document.addEventListener('DOMContentLoaded', loadLeaderboard);
