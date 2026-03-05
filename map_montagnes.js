@@ -134,28 +134,18 @@ fetch('./data/GeoJSON_CH_v2.geojson')
                          </div><hr>`;
 
                     if (dist === 0) {
-                        // ✅ Bonne montagne : clignote en vert
+                        // ✅ Bonne montagne : vert fixe
+                        correctFeature.setStyle({ fillColor: 'green', fillOpacity: 0.9 });
+                    } else {
+                        // ❌ La bonne montagne clignote en rouge
                         let visible = true;
                         blinkInterval = setInterval(() => {
                             correctFeature.setStyle({
-                                fillColor: visible ? 'green' : '#ddd',
-                                fillOpacity: visible ? 0.9 : 0.6
-                            });
-                            visible = !visible;
-                        }, 500);
-                    } else {
-                        // ❌ Mauvaise montagne cliquée : clignote en rouge
-                        let visible = true;
-                        blinkInterval = setInterval(() => {
-                            lyr.setStyle({
                                 fillColor: visible ? 'red' : '#ddd',
                                 fillOpacity: visible ? 0.9 : 0.6
                             });
                             visible = !visible;
                         }, 500);
-
-                        // La bonne montagne : verte fixe
-                        correctFeature.setStyle({ fillColor: 'green', fillOpacity: 0.9 });
                     }
 
                     if (attempts >= maxAttempts) {
