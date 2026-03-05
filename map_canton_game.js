@@ -38,7 +38,7 @@ let blinkInterval  = null;
 
 let score    = 0;
 let attempts = 0;
-const maxAttempts = 5;
+const maxAttempts = 10;
 let gameActive = true;
 let hasClicked = false;
 let currentAttemptsLog = [];
