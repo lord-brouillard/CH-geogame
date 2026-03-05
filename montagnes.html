@@ -20,6 +20,23 @@
     <li><a href="communes.html">Communes</a></li>
 </ul>
 
+
+<!-- Écran de démarrage -->
+<div id="startScreen" style="position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(0,0,0,0.75); z-index:10000; display:none;
+     align-items:center; justify-content:center;">
+  <div style="background:white; padding:36px; border-radius:12px; text-align:center; min-width:300px; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+    <h2 style="margin-bottom:8px;">⛰️ Montagnes 4000m</h2>
+    <p style="color:#666; margin-bottom:20px;">Entrez votre pseudonyme pour commencer</p>
+    <input id="pseudoInput" type="text" placeholder="Votre pseudonyme"
+           style="padding:10px; font-size:16px; width:100%; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;" />
+    <br><br>
+    <button id="startBtn" style="padding:10px 28px; font-size:16px; background:#D62828; color:white; border:none; border-radius:6px; cursor:pointer; width:100%;">
+        Jouer
+    </button>
+  </div>
+</div>
+
 <!-- 🗺️ Carte -->
 <div id="map"></div>
 
@@ -44,7 +61,7 @@
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="map_montagnes.js"></script>
+<script type="module" src="map_montagnes.js"></script>
 
 </body>
 </html>

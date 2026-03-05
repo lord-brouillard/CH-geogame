@@ -1,3 +1,39 @@
+// ── Firebase ─────────────────────────────────────────────────
+import { initializeApp }                    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyCj8F4ABo02jZDbE0VmOr62RgmRhYTi1XE",
+    authDomain:        "ch-geogame.firebaseapp.com",
+    projectId:         "ch-geogame",
+    storageBucket:     "ch-geogame.firebasestorage.app",
+    messagingSenderId: "173593614352",
+    appId:             "1:173593614352:web:7e4109bab775d6d7f31295"
+};
+
+let db = null;
+try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+} catch(e) {
+    console.warn("Firebase non disponible", e);
+}
+
+async function saveScore(pseudo, score) {
+    if (!db) return;
+    try {
+        await addDoc(collection(db, "scores"), {
+            pseudo, score, canton: "Montagnes 4000m", date: new Date().toISOString()
+        });
+        console.log("Score sauvegardé ✅");
+    } catch(e) {
+        console.warn("Erreur sauvegarde :", e);
+    }
+}
+
+// ── Pseudo ───────────────────────────────────────────────────
+let pseudo = localStorage.getItem("pseudo") || "";
+
 let allFeatures = [];
 let correctFeature = null;
 let blinkInterval = null;
@@ -31,6 +67,13 @@ const map = L.map('map', {
 });
 
 L.control.zoom({ position: 'topright' }).addTo(map);
+
+// ── Gestion écran de démarrage ───────────────────────────────
+const startScreen = document.getElementById('startScreen');
+const startBtn    = document.getElementById('startBtn');
+const pseudoInput = document.getElementById('pseudoInput');
+
+function startGame() {
 
 // 1) Fond Suisse non interactif
 fetch('./data/GeoJSON_CH_v2.geojson')
@@ -186,8 +229,11 @@ fetch('./data/GeoJSON_CH_v2.geojson')
         // 🔥 Toutes les features sont maintenant chargées → premier tirage
         pickNewMontagne();
 
-        function endGame() {
+        async function endGame() {
             gameActive = false;
+
+            // 🔵 Sauvegarde Firebase
+            await saveScore(pseudo, score);
 
             if (score > bestScore) {
                 bestScore = score;
@@ -256,3 +302,25 @@ fetch('./data/GeoJSON_CH_v2.geojson')
             }
         });
     });
+
+} // fin startGame
+
+if (pseudo) {
+    startScreen.style.display = 'none';
+    startGame();
+} else {
+    startScreen.style.display = 'flex';
+}
+
+startBtn.addEventListener('click', () => {
+    const val = pseudoInput.value.trim();
+    if (!val) { pseudoInput.style.border = '2px solid red'; return; }
+    pseudo = val;
+    localStorage.setItem("pseudo", pseudo);
+    startScreen.style.display = 'none';
+    startGame();
+});
+
+pseudoInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') startBtn.click();
+});
