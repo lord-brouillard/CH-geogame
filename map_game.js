@@ -28,19 +28,32 @@ function startGame() {
         });
 }
 
-// 🔵 Si pseudo déjà connu → on lance directement sans afficher l'écran
+// 🔵 Gestion écran de démarrage depuis le module JS
+const startScreen = document.getElementById('startScreen');
+const startBtn    = document.getElementById('startBtn');
+const pseudoInput = document.getElementById('pseudoInput');
+
 if (pseudo) {
-    document.getElementById('startScreen').style.display = 'none';
+    startScreen.style.display = 'none';
     startGame();
+} else {
+    startScreen.style.display = 'flex';
 }
 
-document.getElementById('startBtn').addEventListener('click', () => {
-    const val = document.getElementById('pseudoInput').value.trim();
-    if (!val) return;
+startBtn.addEventListener('click', () => {
+    const val = pseudoInput.value.trim();
+    if (!val) {
+        pseudoInput.style.border = '2px solid red';
+        return;
+    }
     pseudo = val;
-    localStorage.setItem("pseudo", pseudo); // 💾 Mémorise le pseudo
-    document.getElementById('startScreen').style.display = 'none';
+    localStorage.setItem("pseudo", pseudo);
+    startScreen.style.display = 'none';
     startGame();
+});
+
+pseudoInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') startBtn.click();
 });
 
 const selectCanton = document.getElementById("selectCanton");
