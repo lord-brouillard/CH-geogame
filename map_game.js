@@ -287,14 +287,4 @@ selectCanton.addEventListener("change", () => {
     buildLayer();
 });
 
-// 🔵 Chargement initial
-fetch('./data/GeoJSON_communes.geojson')
-    .then(r => r.json())
-    .then(geojson => {
-        geojsonData = geojson;
-
-        document.getElementById('best').innerHTML =
-            `Meilleur score : <b>${bestScore}</b>`;
-
-        buildLayer();
-    });
+// ℹ️ Le chargement initial est déclenché par le bouton "Jouer" (startBtn)
