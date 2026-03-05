@@ -41,13 +41,18 @@ export async function loadLeaderboard(cantonFilter = '') {
             return;
         }
 
-        // 🔵 Filtre par canton si sélectionné
+        // 🔵 Filtre par canton :
+        // - Aucun filtre → meilleur score global par joueur (toutes catégories)
+        // - Canton sélectionné → uniquement les scores joués sur CE canton
         const best = {};
         snapshot.forEach(doc => {
-            const d   = doc.data();
+            const d      = doc.data();
             const canton = d.canton || 'Tous les cantons';
 
-            if (cantonFilter && canton !== cantonFilter) return;
+            if (cantonFilter) {
+                // Filtre strict : seulement ce canton
+                if (canton !== cantonFilter) return;
+            }
 
             const key = d.pseudo.toLowerCase();
             if (!best[key] || d.score > best[key].score) {

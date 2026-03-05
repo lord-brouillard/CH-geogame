@@ -426,6 +426,7 @@
                 all.forEach(doc => {
                     const d      = doc.data();
                     const canton = d.canton || 'Tous les cantons';
+                    // Filtre strict par canton, ou global si aucun filtre
                     if (cantonFilter && canton !== cantonFilter) return;
                     const key = d.pseudo.toLowerCase();
                     if (!best[key] || d.score > best[key]) best[key] = d.score;
