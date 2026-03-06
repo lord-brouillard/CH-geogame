@@ -441,14 +441,6 @@
                 <div class="stat-val" id="stat-games">—</div>
                 <div class="stat-label">Parties jouées</div>
             </div>
-            <div class="stat">
-                <div class="stat-val" id="stat-best">—</div>
-                <div class="stat-label">Meilleur score</div>
-            </div>
-            <div class="stat">
-                <div class="stat-val" id="stat-avg">—</div>
-                <div class="stat-label">Score moyen</div>
-            </div>
         </div>
 
         <!-- Leaderboard card -->
@@ -510,15 +502,11 @@
                 if (!uniqueScores.length) {
                     document.getElementById('stat-players').textContent = '0';
                     document.getElementById('stat-games').textContent   = '0';
-                    document.getElementById('stat-best').textContent    = '—';
-                    document.getElementById('stat-avg').textContent     = '—';
                     return;
                 }
 
                 document.getElementById('stat-players').textContent = uniqueScores.length;
                 document.getElementById('stat-games').textContent   = totalGames;
-                document.getElementById('stat-best').textContent    = Math.max(...uniqueScores);
-                document.getElementById('stat-avg').textContent     = Math.round(uniqueScores.reduce((a,b) => a+b, 0) / uniqueScores.length);
             } catch(e) {
                 console.error(e);
             }
