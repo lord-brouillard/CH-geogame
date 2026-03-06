@@ -1,20 +1,20 @@
 import { saveScore } from './leaderboard.js';
 import './tracker.js';
 
-let allFeatures = [];
+let allFeatures    = [];
 let correctFeature = null;
-let blinkInterval = null;
+let blinkInterval  = null;
 
-let score = 0;
-let attempts = 0;
-const maxAttempts = 5;
-let gameActive = true;
-let hasClicked = false;
+let score       = 0;
+let attempts    = 0;
+let maxAttempts = 5;
+let gameActive  = true;
+let hasClicked  = false;
 
 let currentAttemptsLog = [];
 
-let bestScore = localStorage.getItem("bestScore")
-    ? parseInt(localStorage.getItem("bestScore"))
+let bestScore = localStorage.getItem("bestScore20")
+    ? parseInt(localStorage.getItem("bestScore20"))
     : 0;
 
 let pseudo = localStorage.getItem("pseudo") || "";
@@ -25,11 +25,11 @@ function startGame() {
         .then(geojson => {
             geojsonData = geojson;
             document.getElementById('best').innerHTML = `Meilleur score : <b>${bestScore}</b>`;
-            buildLayer();
+            document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
         });
 }
 
-// 🔵 Gestion écran de démarrage depuis le module JS
+// ── Écran de démarrage ────────────────────────────────────────
 const startScreen = document.getElementById('startScreen');
 const startBtn    = document.getElementById('startBtn');
 const pseudoInput = document.getElementById('pseudoInput');
@@ -43,10 +43,7 @@ if (pseudo) {
 
 startBtn.addEventListener('click', () => {
     const val = pseudoInput.value.trim();
-    if (!val) {
-        pseudoInput.style.border = '2px solid red';
-        return;
-    }
+    if (!val) { pseudoInput.style.border = '2px solid red'; return; }
     pseudo = val;
     localStorage.setItem("pseudo", pseudo);
     startScreen.style.display = 'none';
@@ -58,34 +55,33 @@ pseudoInput.addEventListener('keydown', e => {
 });
 
 const selectCanton = document.getElementById("selectCanton");
+const selectMode   = document.getElementById("selectMode");
 
 function distanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-        Math.sin(dLat/2)**2 +
-        Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
-        Math.sin(dLon/2)**2;
+    const a = Math.sin(dLat/2)**2 +
+        Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-const map = L.map('map', {
-    zoomControl: false,
-    attributionControl: false
-});
-
+const map = L.map('map', { zoomControl: false, attributionControl: false });
 L.control.zoom({ position: 'topright' }).addTo(map);
 
 let geojsonData = null;
 
-// 🔵 Construit la couche filtrée selon le canton
+// ── Couche GeoJSON ────────────────────────────────────────────
 function buildLayer() {
+    if (!selectMode.value) {
+        document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
+        return;
+    }
 
+    maxAttempts = parseInt(selectMode.value);
     allFeatures = [];
 
-    const canton = selectCanton.value;
-
+    const canton   = selectCanton.value;
     const filtered = canton
         ? geojsonData.features.filter(f => f.properties.KANTONSNUM == canton)
         : geojsonData.features;
@@ -94,68 +90,42 @@ function buildLayer() {
 
     if (!filtered.length) {
         gameActive = false;
-        document.getElementById('target').innerHTML =
-            "Aucune commune trouvée pour ce canton.";
+        document.getElementById('target').innerHTML = "Aucune commune trouvée pour ce canton.";
         return;
     }
 
     window.layer = L.geoJSON(
         { type: "FeatureCollection", features: filtered },
         {
-            style: {
-                color: '#000',
-                weight: 1,
-                fillOpacity: 0.2
-            },
-
+            style: { color: '#000', weight: 1, fillOpacity: 0.2 },
             onEachFeature: (feature, lyr) => {
                 allFeatures.push(lyr);
 
-                lyr.on('mouseover', () => {
-                    if (!gameActive) return;
-                    lyr.setStyle({ weight: 3, color: 'blue' });
-                });
-
-                lyr.on('mouseout', () => {
-                    if (!gameActive) return;
-                    lyr.setStyle({ weight: 1, color: '#000' });
-                });
+                lyr.on('mouseover', () => { if (!gameActive) return; lyr.setStyle({ weight: 3, color: 'blue' }); });
+                lyr.on('mouseout',  () => { if (!gameActive) return; lyr.setStyle({ weight: 1, color: '#000' }); });
 
                 lyr.on('click', () => {
-
-                    if (!gameActive) return;
-                    if (!correctFeature) return;
-                    if (hasClicked) return;   // 🔴 empêche les clics multiples
+                    if (!gameActive || !correctFeature || hasClicked) return;
                     hasClicked = true;
-
                     document.getElementById('new').disabled = false;
 
                     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
-
                     if (blinkInterval) {
-                        clearInterval(blinkInterval);
-                        blinkInterval = null;
+                        clearInterval(blinkInterval); blinkInterval = null;
                         correctFeature.setStyle({ fillColor: '', fillOpacity: 0.2 });
                     }
 
                     lyr.setStyle({ fillColor: 'orange', fillOpacity: 0.7 });
 
-                    const c1 = lyr.getBounds().getCenter();
-                    const c2 = correctFeature.getBounds().getCenter();
-                    const d = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
-
-                    let dist = Math.round(d);
-                    let pts = Math.max(0, 100 - dist);
+                    const c1   = lyr.getBounds().getCenter();
+                    const c2   = correctFeature.getBounds().getCenter();
+                    const d    = distanceKm(c1.lat, c1.lng, c2.lat, c2.lng);
+                    const dist = Math.round(d);
+                    const pts  = Math.max(0, 100 - dist);
 
                     score += pts;
                     attempts++;
-
-                    currentAttemptsLog.push({
-                        attempt: attempts,
-                        distance: d.toFixed(2),
-                        points: pts,
-                        total: score
-                    });
+                    currentAttemptsLog.push({ attempt: attempts, distance: d.toFixed(2), points: pts, total: score });
 
                     document.getElementById('info').innerHTML +=
                         `<div style="margin-bottom:10px;">
@@ -170,18 +140,12 @@ function buildLayer() {
                     } else {
                         let visible = true;
                         blinkInterval = setInterval(() => {
-                            correctFeature.setStyle({
-                                fillColor: visible ? 'red' : '',
-                                fillOpacity: visible ? 0.7 : 0.2
-                            });
+                            correctFeature.setStyle({ fillColor: visible ? 'red' : '', fillOpacity: visible ? 0.7 : 0.2 });
                             visible = !visible;
                         }, 500);
                     }
 
-                    if (attempts >= maxAttempts) {
-                        endGame();
-                        return;
-                    }
+                    if (attempts >= maxAttempts) { endGame(); return; }
                 });
             }
         }
@@ -189,59 +153,47 @@ function buildLayer() {
 
     window.layer.addTo(map);
     map.fitBounds(window.layer.getBounds());
-
     pickNewCommune();
 }
 
+// ── Nouvelle commune ──────────────────────────────────────────
 function pickNewCommune() {
-
-    if (blinkInterval) {
-        clearInterval(blinkInterval);
-        blinkInterval = null;
-    }
-
+    selectMode.disabled = true;
+    if (blinkInterval) { clearInterval(blinkInterval); blinkInterval = null; }
     allFeatures.forEach(f => f.setStyle({ fillColor: '', fillOpacity: 0.2 }));
 
     if (!allFeatures.length) {
-        document.getElementById('target').innerHTML =
-            "Aucune commune disponible.";
+        document.getElementById('target').innerHTML = "Aucune commune disponible.";
         gameActive = false;
         return;
     }
 
     correctFeature = allFeatures[Math.floor(Math.random() * allFeatures.length)];
-
     const p = correctFeature.feature.properties;
-    document.getElementById('target').innerHTML =
-        `Commune à trouver : <b>${p.NAME}</b>`;
-
-    hasClicked = false;   // 🔵 autorise un seul clic par essai
-    document.getElementById('new').disabled = true;  // 🔴 désactive jusqu'au prochain clic
+    document.getElementById('target').innerHTML = `Commune à trouver : <b>${p.NAME}</b>`;
+    hasClicked = false;
+    document.getElementById('new').disabled = true;
 }
 
+// ── Fin de partie — sauvegarde UNIQUEMENT ici ─────────────────
 async function endGame() {
     gameActive = false;
+    selectMode.disabled = false;
 
     if (score > bestScore) {
         bestScore = score;
-        localStorage.setItem("bestScore", bestScore);
+        localStorage.setItem("bestScore20", bestScore);
     }
 
-    // 🔵 Sauvegarde le score dans Firebase avec le canton
-    const cantonVal = selectCanton.value;
-    const cantonLabel = cantonVal
-        ? selectCanton.options[selectCanton.selectedIndex].text
-        : 'Toute la Suisse';
+    const cantonVal  = selectCanton.value;
+    const cantonBase = cantonVal ? selectCanton.options[selectCanton.selectedIndex].text : 'Toute la Suisse';
+    const cantonLabel = `${cantonBase} (${maxAttempts} essais)`;
     await saveScore(pseudo, score, cantonLabel);
 
-    document.getElementById('target').innerHTML =
-        `🎉 Partie terminée ! Score final : <b>${score}</b>`;
-
-    document.getElementById('new').innerHTML = "Nouvelle partie";
-    document.getElementById('new').disabled = false;
-
-    document.getElementById('best').innerHTML =
-        `Meilleur score : <b>${bestScore}</b>`;
+    document.getElementById('target').innerHTML = `🎉 Partie terminée ! Score final : <b>${score}</b>`;
+    document.getElementById('new').innerHTML    = "Nouvelle partie";
+    document.getElementById('new').disabled     = false;
+    document.getElementById('best').innerHTML   = `Meilleur score : <b>${bestScore}</b>`;
 
     const p = correctFeature.feature.properties;
     let html = `<div style="padding:10px; border:1px solid #ccc; margin-bottom:10px;">
@@ -250,73 +202,70 @@ async function endGame() {
                     Commune cible : <b>${p.NAME}</b><br>
                     Score final : <b>${score}</b><br><br>
                     <u>Détails des essais :</u><br>`;
-
     currentAttemptsLog.forEach(a => {
         html += `Essai ${a.attempt} — Distance : ${a.distance} km — Points : ${a.points} — Total : ${a.total}<br>`;
     });
-
     html += `</div>`;
-
     document.getElementById('archive').innerHTML += html;
 }
 
+// ── Reset — PAS de saveScore ici ─────────────────────────────
 function resetGame() {
+    selectMode.disabled = false;
 
-    if (blinkInterval) {
-        clearInterval(blinkInterval);
-        blinkInterval = null;
+    if (!selectMode.value) {
+        document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
+        return;
     }
 
-    score = 0;
-    attempts = 0;
+    maxAttempts = parseInt(selectMode.value);
+
+    if (blinkInterval) { clearInterval(blinkInterval); blinkInterval = null; }
+
+    score      = 0;
+    attempts   = 0;
     gameActive = true;
     hasClicked = false;
-
-    document.getElementById('info').innerHTML = "";
     currentAttemptsLog = [];
 
-    document.getElementById('new').innerHTML = "Nouvelle commune";
-    document.getElementById('new').disabled = true;
+    document.getElementById('info').innerHTML    = "";
+    document.getElementById('archive').innerHTML = "<h3>Historique des parties</h3>";
+    document.getElementById('new').innerHTML     = "Nouvelle commune";
+    document.getElementById('new').disabled      = true;
+    document.getElementById('best').innerHTML    = `Meilleur score : <b>${bestScore}</b>`;
 
     pickNewCommune();
-
-    document.getElementById('best').innerHTML =
-        `Meilleur score : <b>${bestScore}</b>`;
 }
 
+// ── Bouton ────────────────────────────────────────────────────
 document.getElementById('new').addEventListener('click', () => {
     if (!gameActive) {
         resetGame();
     } else {
-        // Le bouton n'est accessible que si hasClicked === true
-        // pickNewCommune() remet hasClicked = false et disabled = true
         if (!hasClicked) return;
         document.getElementById('info').innerHTML = "";
         pickNewCommune();
     }
 });
 
-// 🔵 changement de canton
-selectCanton.addEventListener("change", () => {
-
-    if (blinkInterval) {
-        clearInterval(blinkInterval);
-        blinkInterval = null;
-    }
-
-    score = 0;
-    attempts = 0;
-    gameActive = true;
-    hasClicked = false;
-
-    document.getElementById('info').innerHTML = "";
-    document.getElementById('archive').innerHTML =
-        '<h3>Historique des parties</h3>';
-
-    document.getElementById('new').innerHTML = "Nouvelle commune";
-    document.getElementById('new').disabled = true;
-
-    buildLayer();
+// ── Changement de mode ────────────────────────────────────────
+selectMode.addEventListener("change", () => {
+    if (blinkInterval) { clearInterval(blinkInterval); blinkInterval = null; }
+    score = 0; attempts = 0; gameActive = true; hasClicked = false;
+    document.getElementById('info').innerHTML    = "";
+    document.getElementById('archive').innerHTML = "<h3>Historique des parties</h3>";
+    document.getElementById('new').innerHTML     = "Nouvelle commune";
+    document.getElementById('new').disabled      = true;
+    if (geojsonData) buildLayer();
 });
 
-// ℹ️ Le chargement initial est déclenché par le bouton "Jouer" (startBtn)
+// ── Changement de canton ──────────────────────────────────────
+selectCanton.addEventListener("change", () => {
+    if (blinkInterval) { clearInterval(blinkInterval); blinkInterval = null; }
+    score = 0; attempts = 0; gameActive = true; hasClicked = false;
+    document.getElementById('info').innerHTML    = "";
+    document.getElementById('archive').innerHTML = "<h3>Historique des parties</h3>";
+    document.getElementById('new').innerHTML     = "Nouvelle commune";
+    document.getElementById('new').disabled      = true;
+    if (geojsonData) buildLayer();
+});
