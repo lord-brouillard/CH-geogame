@@ -1,6 +1,7 @@
 // ── Firebase ─────────────────────────────────────────────────
 import { initializeApp }                    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import './tracker.js';
 
 const firebaseConfig = {
     apiKey:            "AIzaSyCj8F4ABo02jZDbE0VmOr62RgmRhYTi1XE",

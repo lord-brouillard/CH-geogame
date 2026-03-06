@@ -1,4 +1,5 @@
 import { saveScore } from './leaderboard.js';
+import './tracker.js';
 
 let allFeatures = [];
 let correctFeature = null;
@@ -6,7 +7,7 @@ let blinkInterval = null;
 
 let score = 0;
 let attempts = 0;
-let maxAttempts = 5;
+const maxAttempts = 5;
 let gameActive = true;
 let hasClicked = false;
 
@@ -24,8 +25,7 @@ function startGame() {
         .then(geojson => {
             geojsonData = geojson;
             document.getElementById('best').innerHTML = `Meilleur score : <b>${bestScore}</b>`;
-            document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
-            // Ne lance pas buildLayer — attend le choix du mode
+            buildLayer();
         });
 }
 
@@ -58,7 +58,6 @@ pseudoInput.addEventListener('keydown', e => {
 });
 
 const selectCanton = document.getElementById("selectCanton");
-const selectMode   = document.getElementById("selectMode");
 
 function distanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -82,13 +81,6 @@ let geojsonData = null;
 
 // 🔵 Construit la couche filtrée selon le canton
 function buildLayer() {
-
-    maxAttempts = parseInt(selectMode.value);
-
-    if (!selectMode.value) {
-        document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
-        return;
-    }
 
     allFeatures = [];
 
@@ -203,8 +195,6 @@ function buildLayer() {
 
 function pickNewCommune() {
 
-    selectMode.disabled = true;  // 🔒 verrouille le mode pendant la partie
-
     if (blinkInterval) {
         clearInterval(blinkInterval);
         blinkInterval = null;
@@ -231,7 +221,6 @@ function pickNewCommune() {
 
 async function endGame() {
     gameActive = false;
-    selectMode.disabled = false;  // 🔓 déverrouille le mode
 
     if (score > bestScore) {
         bestScore = score;
@@ -240,10 +229,9 @@ async function endGame() {
 
     // 🔵 Sauvegarde le score dans Firebase avec le canton
     const cantonVal = selectCanton.value;
-    const cantonBase = cantonVal
+    const cantonLabel = cantonVal
         ? selectCanton.options[selectCanton.selectedIndex].text
         : 'Toute la Suisse';
-    const cantonLabel = `${cantonBase} (${maxAttempts} essais)`;
     await saveScore(pseudo, score, cantonLabel);
 
     document.getElementById('target').innerHTML =
@@ -273,14 +261,6 @@ async function endGame() {
 }
 
 function resetGame() {
-
-    selectMode.disabled = false;
-    maxAttempts = parseInt(selectMode.value);
-
-    if (!selectMode.value) {
-        document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
-        return;
-    }
 
     if (blinkInterval) {
         clearInterval(blinkInterval);
@@ -314,20 +294,6 @@ document.getElementById('new').addEventListener('click', () => {
         document.getElementById('info').innerHTML = "";
         pickNewCommune();
     }
-});
-
-// 🔵 changement de mode
-selectMode.addEventListener("change", () => {
-    if (blinkInterval) { clearInterval(blinkInterval); blinkInterval = null; }
-    score = 0;
-    attempts = 0;
-    gameActive = true;
-    hasClicked = false;
-    document.getElementById('info').innerHTML = "";
-    document.getElementById('archive').innerHTML = '<h3>Historique des parties</h3>';
-    document.getElementById('new').innerHTML = "Nouvelle commune";
-    document.getElementById('new').disabled = true;
-    buildLayer();
 });
 
 // 🔵 changement de canton

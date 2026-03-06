@@ -311,6 +311,39 @@
             .lb-header-row span:last-child { display: none; }
             .stats-bar { flex-direction: column; gap: 2px; }
         }
+        /* ── Tabs ───────────────────────────────────────────────── */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 28px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1.5px solid var(--dark);
+            border-radius: 2px;
+            background: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            color: var(--dark);
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-btn:hover { background: #f0f0ec; }
+        .tab-btn.active {
+            background: var(--dark);
+            color: var(--cream);
+        }
+
+        /* ── Playtime header row ────────────────────────────────── */
+        .lb-header-row.pt-header {
+            grid-template-columns: 52px 1fr 140px;
+        }
+        .lb-row.pt-row {
+            grid-template-columns: 52px 1fr 140px;
+        }
     </style>
 </head>
 <body>
@@ -443,76 +476,243 @@
             </div>
         </div>
 
-        <!-- Leaderboard card -->
-        <div class="lb-card">
-            <div class="lb-header-row">
-                <span>Rang</span>
-                <span>Joueur</span>
-                <span>Score</span>
-                <span>Date</span>
+        <!-- Onglets -->
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-scores">🏆 Scores</button>
+            <button class="tab-btn" id="tab-playtime">⏱️ Temps de jeu</button>
+        </div>
+
+        <!-- Panneau Scores -->
+        <div id="panel-scores">
+            <!-- Filtre par canton -->
+            <div style="margin-bottom: 20px;">
+                <select id="filterCanton" style="width:100%; padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; letter-spacing:0.06em; border:1.5px solid var(--dark); border-radius:2px; background:white; color:var(--dark); cursor:pointer; appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%231A1A1A%22 stroke-width=%221.8%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
+                    <option value="tous">🌍 Toute la Suisse — tous modes</option>
+                    <option value="Montagnes 4000m">⛰️ Montagnes 4000m</option>
+                    <option value="Cantons Suisse">🗺️ Cantons Suisse</option>
+                    <optgroup label="── Communes · 5 essais ──">
+                    <option value="Toute la Suisse (5 essais)">Toute la Suisse (5 essais)</option>
+                    <option value="Zurich (5 essais)">Zurich (5 essais)</option>
+                    <option value="Berne (5 essais)">Berne (5 essais)</option>
+                    <option value="Lucerne (5 essais)">Lucerne (5 essais)</option>
+                    <option value="Uri (5 essais)">Uri (5 essais)</option>
+                    <option value="Schwytz (5 essais)">Schwytz (5 essais)</option>
+                    <option value="Obwald (5 essais)">Obwald (5 essais)</option>
+                    <option value="Nidwald (5 essais)">Nidwald (5 essais)</option>
+                    <option value="Glaris (5 essais)">Glaris (5 essais)</option>
+                    <option value="Zoug (5 essais)">Zoug (5 essais)</option>
+                    <option value="Fribourg (5 essais)">Fribourg (5 essais)</option>
+                    <option value="Soleure (5 essais)">Soleure (5 essais)</option>
+                    <option value="Bâle-Ville (5 essais)">Bâle-Ville (5 essais)</option>
+                    <option value="Bâle-Campagne (5 essais)">Bâle-Campagne (5 essais)</option>
+                    <option value="Schaffhouse (5 essais)">Schaffhouse (5 essais)</option>
+                    <option value="Appenzell RE (5 essais)">Appenzell RE (5 essais)</option>
+                    <option value="Appenzell RI (5 essais)">Appenzell RI (5 essais)</option>
+                    <option value="Saint-Gall (5 essais)">Saint-Gall (5 essais)</option>
+                    <option value="Grisons (5 essais)">Grisons (5 essais)</option>
+                    <option value="Argovie (5 essais)">Argovie (5 essais)</option>
+                    <option value="Thurgovie (5 essais)">Thurgovie (5 essais)</option>
+                    <option value="Tessin (5 essais)">Tessin (5 essais)</option>
+                    <option value="Vaud (5 essais)">Vaud (5 essais)</option>
+                    <option value="Valais (5 essais)">Valais (5 essais)</option>
+                    <option value="Neuchâtel (5 essais)">Neuchâtel (5 essais)</option>
+                    <option value="Genève (5 essais)">Genève (5 essais)</option>
+                    <option value="Jura (5 essais)">Jura (5 essais)</option>
+                    </optgroup>
+                    <optgroup label="── Communes · 10 essais ──">
+                    <option value="Toute la Suisse (10 essais)">Toute la Suisse (10 essais)</option>
+                    <option value="Zurich (10 essais)">Zurich (10 essais)</option>
+                    <option value="Berne (10 essais)">Berne (10 essais)</option>
+                    <option value="Lucerne (10 essais)">Lucerne (10 essais)</option>
+                    <option value="Uri (10 essais)">Uri (10 essais)</option>
+                    <option value="Schwytz (10 essais)">Schwytz (10 essais)</option>
+                    <option value="Obwald (10 essais)">Obwald (10 essais)</option>
+                    <option value="Nidwald (10 essais)">Nidwald (10 essais)</option>
+                    <option value="Glaris (10 essais)">Glaris (10 essais)</option>
+                    <option value="Zoug (10 essais)">Zoug (10 essais)</option>
+                    <option value="Fribourg (10 essais)">Fribourg (10 essais)</option>
+                    <option value="Soleure (10 essais)">Soleure (10 essais)</option>
+                    <option value="Bâle-Ville (10 essais)">Bâle-Ville (10 essais)</option>
+                    <option value="Bâle-Campagne (10 essais)">Bâle-Campagne (10 essais)</option>
+                    <option value="Schaffhouse (10 essais)">Schaffhouse (10 essais)</option>
+                    <option value="Appenzell RE (10 essais)">Appenzell RE (10 essais)</option>
+                    <option value="Appenzell RI (10 essais)">Appenzell RI (10 essais)</option>
+                    <option value="Saint-Gall (10 essais)">Saint-Gall (10 essais)</option>
+                    <option value="Grisons (10 essais)">Grisons (10 essais)</option>
+                    <option value="Argovie (10 essais)">Argovie (10 essais)</option>
+                    <option value="Thurgovie (10 essais)">Thurgovie (10 essais)</option>
+                    <option value="Tessin (10 essais)">Tessin (10 essais)</option>
+                    <option value="Vaud (10 essais)">Vaud (10 essais)</option>
+                    <option value="Valais (10 essais)">Valais (10 essais)</option>
+                    <option value="Neuchâtel (10 essais)">Neuchâtel (10 essais)</option>
+                    <option value="Genève (10 essais)">Genève (10 essais)</option>
+                    <option value="Jura (10 essais)">Jura (10 essais)</option>
+                    </optgroup>
+                    <optgroup label="── Communes · 20 essais ──">
+                    <option value="Toute la Suisse (20 essais)">Toute la Suisse (20 essais)</option>
+                    <option value="Zurich (20 essais)">Zurich (20 essais)</option>
+                    <option value="Berne (20 essais)">Berne (20 essais)</option>
+                    <option value="Lucerne (20 essais)">Lucerne (20 essais)</option>
+                    <option value="Uri (20 essais)">Uri (20 essais)</option>
+                    <option value="Schwytz (20 essais)">Schwytz (20 essais)</option>
+                    <option value="Obwald (20 essais)">Obwald (20 essais)</option>
+                    <option value="Nidwald (20 essais)">Nidwald (20 essais)</option>
+                    <option value="Glaris (20 essais)">Glaris (20 essais)</option>
+                    <option value="Zoug (20 essais)">Zoug (20 essais)</option>
+                    <option value="Fribourg (20 essais)">Fribourg (20 essais)</option>
+                    <option value="Soleure (20 essais)">Soleure (20 essais)</option>
+                    <option value="Bâle-Ville (20 essais)">Bâle-Ville (20 essais)</option>
+                    <option value="Bâle-Campagne (20 essais)">Bâle-Campagne (20 essais)</option>
+                    <option value="Schaffhouse (20 essais)">Schaffhouse (20 essais)</option>
+                    <option value="Appenzell RE (20 essais)">Appenzell RE (20 essais)</option>
+                    <option value="Appenzell RI (20 essais)">Appenzell RI (20 essais)</option>
+                    <option value="Saint-Gall (20 essais)">Saint-Gall (20 essais)</option>
+                    <option value="Grisons (20 essais)">Grisons (20 essais)</option>
+                    <option value="Argovie (20 essais)">Argovie (20 essais)</option>
+                    <option value="Thurgovie (20 essais)">Thurgovie (20 essais)</option>
+                    <option value="Tessin (20 essais)">Tessin (20 essais)</option>
+                    <option value="Vaud (20 essais)">Vaud (20 essais)</option>
+                    <option value="Valais (20 essais)">Valais (20 essais)</option>
+                    <option value="Neuchâtel (20 essais)">Neuchâtel (20 essais)</option>
+                    <option value="Genève (20 essais)">Genève (20 essais)</option>
+                    <option value="Jura (20 essais)">Jura (20 essais)</option>
+                    </optgroup>
+                </select>
             </div>
 
-            <div id="leaderboard-list">
-                <div class="lb-loading">Chargement du classement…</div>
+            <div class="lb-card">
+                <div class="lb-header-row">
+                    <span>Rang</span>
+                    <span>Joueur</span>
+                    <span>Score</span>
+                    <span>Date</span>
+                </div>
+                <div id="leaderboard-list">
+                    <div class="lb-loading">Chargement…</div>
+                </div>
+                <div class="lb-footer">
+                    <button class="btn-refresh" id="btn-refresh">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M12 7A5 5 0 1 1 7 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M7 2L9.5 4.5L7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Actualiser
+                    </button>
+                </div>
             </div>
+        </div>
 
-            <div class="lb-footer">
-                <button class="btn-refresh" id="btn-refresh">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M12 7A5 5 0 1 1 7 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                        <path d="M7 2L9.5 4.5L7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Actualiser
-                </button>
+        <!-- Panneau Temps de jeu -->
+        <div id="panel-playtime" style="display:none;">
+            <div class="lb-card">
+                <div class="lb-header-row pt-header">
+                    <span>Rang</span>
+                    <span>Joueur</span>
+                    <span>Temps total</span>
+                </div>
+                <div id="playtime-list">
+                    <div class="lb-loading">Chargement…</div>
+                </div>
+                <div class="lb-footer">
+                    <button class="btn-refresh" id="btn-refresh-pt">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M12 7A5 5 0 1 1 7 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M7 2L9.5 4.5L7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Actualiser
+                    </button>
+                </div>
             </div>
         </div>
 
     </div>
 
     <script type="module">
-        import { db }          from './firebase-config.js';
-        import { loadLeaderboard } from './leaderboard.js';
-        import {
-            collection, getDocs, query, orderBy, limit
-        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { db }                from './firebase-config.js';
+        import { loadLeaderboard }   from './leaderboard.js';
+        import { getAllPlaytimes, formatTime } from './tracker.js';
+        import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // ── Charge les stats (total joueurs, best, avg, parties) ─
+        // ── Stats bar ────────────────────────────────────────────
         async function loadStats(cantonFilter = 'tous') {
             try {
                 const all = await getDocs(collection(db, "scores"));
                 if (all.empty) return;
 
                 const isAllModes = (cantonFilter === 'tous');
-
-                const best  = {};
+                const best = {};
                 let totalGames = 0;
 
                 all.forEach(doc => {
                     const d      = doc.data();
                     const canton = d.canton || 'Toute la Suisse';
-
                     if (!isAllModes && canton !== cantonFilter) return;
-
                     totalGames++;
                     const key = d.pseudo.toLowerCase();
                     if (!best[key] || d.score > best[key]) best[key] = d.score;
                 });
 
                 const uniqueScores = Object.values(best);
-                if (!uniqueScores.length) {
-                    document.getElementById('stat-players').textContent = '0';
-                    document.getElementById('stat-games').textContent   = '0';
+                document.getElementById('stat-players').textContent = uniqueScores.length || '0';
+                document.getElementById('stat-games').textContent   = totalGames || '0';
+            } catch(e) { console.error(e); }
+        }
+
+        // ── Classement temps de jeu ──────────────────────────────
+        async function loadPlaytimeLeaderboard() {
+            const container = document.getElementById('playtime-list');
+            container.innerHTML = `<div class="lb-loading">Chargement…</div>`;
+            try {
+                const data = await getAllPlaytimes();
+                if (!data.length) {
+                    container.innerHTML = `<div class="lb-empty">Aucun temps enregistré pour l'instant.</div>`;
                     return;
                 }
-
-                document.getElementById('stat-players').textContent = uniqueScores.length;
-                document.getElementById('stat-games').textContent   = totalGames;
+                const TOP_N = 10;
+                let html = '';
+                data.slice(0, TOP_N).forEach((d, i) => {
+                    const rank  = i + 1;
+                    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+                    const time  = formatTime(d.seconds || 0);
+                    html += `
+                    <div class="lb-row pt-row ${rank <= 3 ? 'lb-top' : ''}" style="--rank:${rank}">
+                        <span class="lb-rank">${medal}</span>
+                        <span class="lb-pseudo">${escapeHtml(d.pseudo)}</span>
+                        <span class="lb-score">${time}</span>
+                    </div>`;
+                });
+                container.innerHTML = html;
             } catch(e) {
-                console.error(e);
+                container.innerHTML = `<div class="lb-error">Impossible de charger.</div>`;
             }
         }
 
-        // ── Init ─────────────────────────────────────────────────
+        function escapeHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        // ── Onglets ──────────────────────────────────────────────
+        const tabScores    = document.getElementById('tab-scores');
+        const tabPlaytime  = document.getElementById('tab-playtime');
+        const panelScores  = document.getElementById('panel-scores');
+        const panelPT      = document.getElementById('panel-playtime');
+
+        tabScores.addEventListener('click', () => {
+            tabScores.classList.add('active');
+            tabPlaytime.classList.remove('active');
+            panelScores.style.display = '';
+            panelPT.style.display = 'none';
+        });
+
+        tabPlaytime.addEventListener('click', () => {
+            tabPlaytime.classList.add('active');
+            tabScores.classList.remove('active');
+            panelPT.style.display = '';
+            panelScores.style.display = 'none';
+            loadPlaytimeLeaderboard();
+        });
+
+        // ── Scores ───────────────────────────────────────────────
         const filterCanton = document.getElementById('filterCanton');
 
         function refresh() {
@@ -522,10 +722,9 @@
         }
 
         refresh();
-
         filterCanton.addEventListener('change', refresh);
-
         document.getElementById('btn-refresh').addEventListener('click', refresh);
+        document.getElementById('btn-refresh-pt').addEventListener('click', loadPlaytimeLeaderboard);
     </script>
 </body>
 </html>
