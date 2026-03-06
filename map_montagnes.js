@@ -1,6 +1,6 @@
 // ── Firebase ─────────────────────────────────────────────────
-import { initializeApp }                    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp, getApps }             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import './tracker.js';
 
 const firebaseConfig = {
@@ -14,7 +14,7 @@ const firebaseConfig = {
 
 let db = null;
 try {
-    const app = initializeApp(firebaseConfig);
+    const app = getApps().find(a => a.name === '[DEFAULT]') ?? initializeApp(firebaseConfig);
     db = getFirestore(app);
 } catch(e) {
     console.warn("Firebase non disponible", e);

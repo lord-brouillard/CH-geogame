@@ -1,4 +1,4 @@
-import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp, getApps, getApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -13,7 +13,7 @@ const firebaseConfig = {
 
 let db = null;
 try {
-    const app = initializeApp(firebaseConfig);
+    const app = getApps().find(a => a.name === '[DEFAULT]') ?? initializeApp(firebaseConfig);
     db = getFirestore(app);
 } catch(e) {
     console.warn("Firebase non disponible", e);
