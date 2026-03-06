@@ -338,7 +338,7 @@
         <!-- Filtre par canton -->
         <div style="margin-bottom: 28px;">
             <select id="filterCanton" style="width:100%; padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; letter-spacing:0.06em; border:1.5px solid var(--dark); border-radius:2px; background:white; color:var(--dark); cursor:pointer; appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%231A1A1A%22 stroke-width=%221.8%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>'); background-repeat:no-repeat; background-position:right 14px center;">
-                <option value="Toute la Suisse (5 essais)">🇨🇭 Toute la Suisse — tous modes</option>
+                <option value="tous">🌍 Toute la Suisse — tous modes</option>
                 <option value="Montagnes 4000m">⛰️ Montagnes 4000m</option>
                 <option value="Cantons Suisse">🗺️ Cantons Suisse</option>
                 <optgroup label="── Communes · 5 essais ──">
@@ -435,7 +435,11 @@
         <div class="stats-bar">
             <div class="stat">
                 <div class="stat-val" id="stat-players">—</div>
-                <div class="stat-label">Joueurs</div>
+                <div class="stat-label">Joueurs uniques</div>
+            </div>
+            <div class="stat">
+                <div class="stat-val" id="stat-games">—</div>
+                <div class="stat-label">Parties jouées</div>
             </div>
             <div class="stat">
                 <div class="stat-val" id="stat-best">—</div>
@@ -480,18 +484,24 @@
             collection, getDocs, query, orderBy, limit
         } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // ── Charge les stats (total joueurs, best, avg) ──────────
-        async function loadStats(cantonFilter = 'Toute la Suisse') {
+        // ── Charge les stats (total joueurs, best, avg, parties) ─
+        async function loadStats(cantonFilter = 'tous') {
             try {
                 const all = await getDocs(collection(db, "scores"));
                 if (all.empty) return;
 
-                const best = {};
+                const isAllModes = (cantonFilter === 'tous');
+
+                const best  = {};
+                let totalGames = 0;
+
                 all.forEach(doc => {
                     const d      = doc.data();
-                    const canton = d.canton || 'Tous les cantons';
-                    // Filtre strict par canton, ou global si aucun filtre
-                    if (cantonFilter && canton !== cantonFilter) return;
+                    const canton = d.canton || 'Toute la Suisse';
+
+                    if (!isAllModes && canton !== cantonFilter) return;
+
+                    totalGames++;
                     const key = d.pseudo.toLowerCase();
                     if (!best[key] || d.score > best[key]) best[key] = d.score;
                 });
@@ -499,12 +509,14 @@
                 const uniqueScores = Object.values(best);
                 if (!uniqueScores.length) {
                     document.getElementById('stat-players').textContent = '0';
+                    document.getElementById('stat-games').textContent   = '0';
                     document.getElementById('stat-best').textContent    = '—';
                     document.getElementById('stat-avg').textContent     = '—';
                     return;
                 }
 
                 document.getElementById('stat-players').textContent = uniqueScores.length;
+                document.getElementById('stat-games').textContent   = totalGames;
                 document.getElementById('stat-best').textContent    = Math.max(...uniqueScores);
                 document.getElementById('stat-avg').textContent     = Math.round(uniqueScores.reduce((a,b) => a+b, 0) / uniqueScores.length);
             } catch(e) {
@@ -516,8 +528,8 @@
         const filterCanton = document.getElementById('filterCanton');
 
         function refresh() {
-            const canton = filterCanton.value || 'Toute la Suisse (5 essais)';
-            loadLeaderboard(canton);
+            const canton = filterCanton.value;
+            loadLeaderboard(canton === 'tous' ? '' : canton);
             loadStats(canton);
         }
 
