@@ -268,6 +268,7 @@ async function endGame() {
 function resetGame() {
 
     selectMode.disabled = false;
+    maxAttempts = parseInt(selectMode.value);
 
     if (blinkInterval) {
         clearInterval(blinkInterval);
