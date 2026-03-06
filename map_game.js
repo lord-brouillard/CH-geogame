@@ -24,7 +24,8 @@ function startGame() {
         .then(geojson => {
             geojsonData = geojson;
             document.getElementById('best').innerHTML = `Meilleur score : <b>${bestScore}</b>`;
-            buildLayer();
+            document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
+            // Ne lance pas buildLayer — attend le choix du mode
         });
 }
 
@@ -83,6 +84,12 @@ let geojsonData = null;
 function buildLayer() {
 
     maxAttempts = parseInt(selectMode.value);
+
+    if (!selectMode.value) {
+        document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
+        return;
+    }
+
     allFeatures = [];
 
     const canton = selectCanton.value;
@@ -269,6 +276,11 @@ function resetGame() {
 
     selectMode.disabled = false;
     maxAttempts = parseInt(selectMode.value);
+
+    if (!selectMode.value) {
+        document.getElementById('target').innerHTML = "👆 Choisissez un mode de jeu pour commencer.";
+        return;
+    }
 
     if (blinkInterval) {
         clearInterval(blinkInterval);
